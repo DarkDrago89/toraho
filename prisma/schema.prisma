@@ -1,0 +1,177 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// Semua nilai uang disimpan sebagai Int rupiah (tanpa desimal).
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String    @unique
+  sortOrder Int       @default(0)
+  isVisible Boolean   @default(true)
+  products  Product[]
+}
+
+model Product {
+  id             String         @id @default(cuid())
+  categoryId     String
+  category       Category       @relation(fields: [categoryId], references: [id])
+  name           String
+  slug           String         @unique
+  description    String         @default("")
+  price          Int
+  compareAtPrice Int?
+  weightGrams    Int
+  isVisible      Boolean        @default(true)
+  isFeatured     Boolean        @default(false)
+  createdAt      DateTime       @default(now())
+  images         ProductImage[]
+  variants       Variant[]
+
+  @@index([categoryId])
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  sortOrder Int     @default(0)
+
+  @@index([productId])
+}
+
+model Variant {
+  id         String      @id @default(cuid())
+  productId  String
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  label      String
+  sku        String      @unique
+  /// Stok yang masih bisa dijual. Dikurangi saat pesanan dibuat (ditahan), dikembalikan saat batal/kedaluwarsa.
+  stock      Int         @default(0)
+  sortOrder  Int         @default(0)
+  /// Varian yang dihapus dari form tetapi sudah pernah dipesan: disembunyikan, bukan dihapus.
+  isArchived Boolean     @default(false)
+  orderItems OrderItem[]
+
+  @@index([productId])
+}
+
+enum OrderStatus {
+  MENUNGGU_BAYAR
+  MENUNGGU_VERIFIKASI
+  DIBAYAR
+  DIKEMAS
+  DIKIRIM
+  SELESAI
+  BATAL
+  KEDALUWARSA
+  PERLU_TINDAKAN
+}
+
+enum PaymentMethod {
+  MIDTRANS
+  MANUAL
+}
+
+model Order {
+  id                  String         @id @default(cuid())
+  code                String         @unique
+  status              OrderStatus    @default(MENUNGGU_BAYAR)
+  paymentMethod       PaymentMethod
+  customerName        String
+  phone               String
+  email               String?
+  provinceCode        String
+  city                String
+  district            String
+  postalCode          String
+  addressLine         String
+  subtotal            Int
+  shippingCost        Int
+  total               Int
+  weightGrams         Int
+  paymentDeadline     DateTime
+  /// true = stok item pesanan ini sedang dikurangi dari Variant. Dipakai agar stok tidak dikembalikan dua kali.
+  stockHeld           Boolean        @default(true)
+  trackingNumber      String?
+  adminNote           String?
+  rejectReason        String?
+  refunded            Boolean        @default(false)
+  midtransToken       String?
+  midtransRedirectUrl String?
+  paidAt              DateTime?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  items               OrderItem[]
+  proofs              PaymentProof[]
+  paymentEvents       PaymentEvent[]
+
+  @@index([status])
+  @@index([paidAt])
+}
+
+model OrderItem {
+  id           String  @id @default(cuid())
+  orderId      String
+  order        Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variantId    String
+  variant      Variant @relation(fields: [variantId], references: [id])
+  /// Salinan saat checkout agar laporan tidak berubah saat produk diedit.
+  productName  String
+  variantLabel String
+  price        Int
+  qty          Int
+  weightGrams  Int
+
+  @@index([orderId])
+  @@index([variantId])
+}
+
+model PaymentProof {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  url       String
+  createdAt DateTime @default(now())
+
+  @@index([orderId])
+}
+
+/// Setiap notifikasi Midtrans yang diterima. Unique mencegah notifikasi ganda diproses dua kali.
+model PaymentEvent {
+  id         String   @id @default(cuid())
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  provider   String
+  externalId String
+  status     String
+  raw        Json
+  createdAt  DateTime @default(now())
+
+  @@unique([provider, externalId, status])
+}
+
+model ShippingRate {
+  provinceCode String @id
+  cost         Int
+}
+
+model Setting {
+  key   String @id
+  value Json
+}
