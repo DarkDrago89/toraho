@@ -69,6 +69,37 @@ describe("createPayment", () => {
     expect(fetchMock.mock.calls[0][0]).toBe("https://app.midtrans.com/snap/v1/transactions");
   });
 
+  const minimalPayment = {
+    code: "X",
+    total: 1000,
+    customerName: "A",
+    phone: "081234567890",
+    items: [{ name: "A", price: 1000, qty: 1 }],
+    shippingCost: 0,
+    expiryHours: 1,
+  };
+
+  it("URL notifikasi override (untuk tunnel saat uji lokal) dikirim lewat header X-Override-Notification", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ token: "t", redirect_url: "u" }), { status: 201 }));
+    vi.stubGlobal("fetch", fetchMock);
+    await createMidtransProvider({
+      serverKey: KEY,
+      isProduction: false,
+      siteUrl: "http://localhost:3001",
+      notificationUrl: "https://abc.ngrok-free.app/api/midtrans/notification",
+    }).createPayment(minimalPayment);
+    expect(new Headers(fetchMock.mock.calls[0][1].headers).get("X-Override-Notification")).toBe(
+      "https://abc.ngrok-free.app/api/midtrans/notification",
+    );
+  });
+
+  it("tanpa override, header X-Override-Notification tidak dikirim (memakai URL di dashboard Midtrans)", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ token: "t", redirect_url: "u" }), { status: 201 }));
+    vi.stubGlobal("fetch", fetchMock);
+    await createMidtransProvider({ serverKey: KEY, isProduction: false, siteUrl: "x" }).createPayment(minimalPayment);
+    expect(new Headers(fetchMock.mock.calls[0][1].headers).has("X-Override-Notification")).toBe(false);
+  });
+
   it("melempar error yang jelas bila Midtrans menolak", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({ error_messages: ["Access denied"] }), { status: 401 })));
     await expect(

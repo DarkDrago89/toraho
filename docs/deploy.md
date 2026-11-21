@@ -30,6 +30,10 @@ Toraho di-deploy **dua kali** dari repo yang sama. Keduanya hanya berbeda di env
 | `BLOB_READ_WRITE_TOKEN` | otomatis dari Vercel Blob |
 | `CRON_SECRET` | string acak. Vercel mengirimkannya ke `/api/cron/expire` |
 | `NEXT_PUBLIC_SITE_URL` | URL situs, mis. `https://toraho.id` |
+| `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` | OAuth client Google untuk login pembeli (opsional). Tambahkan `https://<domain>/api/auth/callback/google` ke *Authorized redirect URIs*. Lihat [google-login.md](google-login.md) |
+| `RAJAONGKIR_API_KEY` | API key Shipping Cost Komerce (opsional). Setelah deploy, atur asal pengiriman di admin. Lihat [rajaongkir.md](rajaongkir.md) |
+| `RAJAONGKIR_COURIERS` | kurir yang ditawarkan, default `jne:jnt:sicepat` |
+| `MIDTRANS_NOTIFICATION_URL` | **kosongkan** di Vercel. Hanya untuk uji lokal lewat tunnel. Di produksi, isi *Payment Notification URL* di dashboard Midtrans dengan `https://<domain>/api/midtrans/notification` |
 
 ## 3. Build command
 

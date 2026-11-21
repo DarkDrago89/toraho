@@ -33,6 +33,10 @@ export default async function SettingsPage() {
                 <dt className="text-muted">Metode</dt>
                 <dd>QRIS + Virtual Account</dd>
               </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-muted">Notifikasi</dt>
+                <dd className="truncate text-right">{process.env.MIDTRANS_NOTIFICATION_URL?.trim() || "URL di dashboard Midtrans"}</dd>
+              </div>
             </dl>
             <p className="mt-3 text-xs text-muted">
               Diatur lewat environment variable server (MIDTRANS_SERVER_KEY, MIDTRANS_IS_PRODUCTION). URL notifikasi di dashboard Midtrans:{" "}

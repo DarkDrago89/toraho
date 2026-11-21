@@ -14,7 +14,8 @@
     "brand": "node scripts/make-brand.mjs",
     "postinstall": "prisma generate",
     "db:seed:koleksi01": "tsx prisma/seed-koleksi-01.ts",
-    "render:mockups": "tsx scripts/render-mockups.ts"
+    "render:mockups": "tsx scripts/render-mockups.ts",
+    "check:rajaongkir": "tsx scripts/check-rajaongkir.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

@@ -4,7 +4,13 @@ import type { PaymentProvider, PaymentRequest, PaymentSession } from "./types";
 /** Hanya QRIS + Virtual Account. Kartu kredit sengaja tidak diaktifkan (biaya 2,9% + Rp2.000). */
 export const ENABLED_PAYMENTS = ["other_qris", "bca_va", "bni_va", "bri_va", "permata_va", "cimb_va", "echannel", "other_va"];
 
-type Config = { serverKey: string; isProduction: boolean; siteUrl: string };
+type Config = {
+  serverKey: string;
+  isProduction: boolean;
+  siteUrl: string;
+  /** URL notifikasi pengganti untuk transaksi ini (mis. tunnel ngrok saat uji lokal). Kosong = URL di dashboard. */
+  notificationUrl?: string;
+};
 
 /** Midtrans: SHA512(order_id + status_code + gross_amount + serverKey) harus sama dengan signature_key. */
 export function verifyMidtransSignature(
@@ -45,6 +51,7 @@ export function createMidtransProvider(cfg: Config): PaymentProvider {
           Accept: "application/json",
           "Content-Type": "application/json",
           Authorization: "Basic " + Buffer.from(cfg.serverKey + ":").toString("base64"),
+          ...(cfg.notificationUrl ? { "X-Override-Notification": cfg.notificationUrl } : {}),
         },
         body: JSON.stringify(body),
       });
@@ -65,5 +72,6 @@ export function midtransFromEnv(): PaymentProvider | null {
     serverKey,
     isProduction: process.env.MIDTRANS_IS_PRODUCTION === "true",
     siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3001",
+    notificationUrl: process.env.MIDTRANS_NOTIFICATION_URL?.trim() || undefined,
   });
 }

@@ -22,11 +22,14 @@ Toraho adalah toko online full-stack yang dibuat untuk **dipakai sungguhan** dan
 - Katalog dengan filter kategori dan urutan harga. Produk habis diberi label **HABIS**.
 - Detail produk: galeri foto, pilihan ukuran dengan stok per ukuran, dan peringatan "sisa N".
 - Keranjang yang tersimpan di browser. Keranjang hanya menyimpan ID dan jumlah, sedangkan harga selalu diambil dari server.
-- Checkout tamu dengan alamat terstruktur (provinsi, kota, kecamatan, kode pos) dan ongkir otomatis per provinsi.
+- Checkout tanpa akun. Ongkir:
+  - **Kurir (RajaOngkir/Komerce):** cari kelurahan/kecamatan/kode pos tujuan, pilih JNE/J&T/SiCepat dengan harga dan estimasi. Ongkir dihitung ulang di server saat pesanan dibuat.
+  - **Tarif per provinsi:** dipakai saat RajaOngkir belum diatur, dan sebagai cadangan saat API gagal atau kuota habis.
+- **Login pembeli dengan Google** (opsional): halaman **Akun saya** berisi riwayat pesanan, dan checkout terisi otomatis. Pesanan lama dengan email yang sama bisa dihubungkan setelah nomor HP dicocokkan.
 - Pembayaran:
   - **Midtrans Snap**, hanya QRIS + VA (kartu kredit sengaja dimatikan karena biayanya tinggi).
   - **Transfer manual**: pembeli melihat rekening, nominal, dan hitung mundur, lalu mengunggah bukti yang **dicek admin**.
-- Halaman status pesanan yang dibuka dengan **kode pesanan + nomor HP**, berisi status, resi, dan tombol WhatsApp.
+- Halaman status pesanan yang dibuka dengan **kode pesanan + nomor HP** (atau langsung lewat akun), berisi status, kurir, resi, dan tombol WhatsApp.
 
 **Admin (`/admin`)**
 - **Ringkasan**:
@@ -45,7 +48,7 @@ Toraho adalah toko online full-stack yang dibuat untuk **dipakai sungguhan** dan
   - Harga coret dan berat.
   - Varian/ukuran dengan stok dan SKU, plus tombol cepat S–XXL.
   - Unggah beberapa foto yang bisa diurutkan.
-- **Pengaturan**: batas waktu bayar, rekening transfer, nomor WhatsApp, dan tarif ongkir per provinsi.
+- **Pengaturan**: batas waktu bayar, rekening transfer, nomor WhatsApp, asal pengiriman dan status RajaOngkir, serta tarif ongkir per provinsi.
 
 | Katalog | Checkout | Transfer manual | Status pesanan |
 |---|---|---|---|
@@ -114,8 +117,10 @@ npm run dev                   # http://localhost:3000  (admin: /admin)
 ```
 
 - **Akun admin (lokal/demo):** `admin@toraho.test`, dengan kata sandi dari `SEED_ADMIN_PASSWORD` di `.env`.
-- **Midtrans:** isi `MIDTRANS_SERVER_KEY` dengan Server Key **sandbox** dari dashboard Midtrans. Tanpa key ini, opsi QRIS/VA dinonaktifkan dan hanya transfer manual yang bisa dipilih.
-- **Tes:** `npm test`. Ada 129 tes untuk aturan domain, checkout (termasuk balapan stok), webhook, transfer manual, admin, laporan, dan pengaturan.
+- **Midtrans:** isi `MIDTRANS_SERVER_KEY` dengan Server Key **sandbox**. Tanpa key ini, opsi QRIS/VA dinonaktifkan dan hanya transfer manual yang bisa dipilih. Uji webhook lokal lewat tunnel: [docs/midtrans-sandbox.md](docs/midtrans-sandbox.md).
+- **Login Google:** isi `AUTH_GOOGLE_ID` dan `AUTH_GOOGLE_SECRET`, lihat [docs/google-login.md](docs/google-login.md).
+- **Ongkir kurir:** isi `RAJAONGKIR_API_KEY`, lalu atur asal pengiriman di admin. Cek respons asli dengan `npm run check:rajaongkir -- cibubur`. Lihat [docs/rajaongkir.md](docs/rajaongkir.md).
+- **Tes:** `npm test`. Ada 216 tes untuk aturan domain, checkout (termasuk balapan stok dan hitung ulang ongkir), webhook, transfer manual, peran login, akun pembeli, klien RajaOngkir, admin, laporan, dan pengaturan.
 - **Aset brand:** `npm run brand -- assets/logo-source.webp` membuat logo putih, mark, dan ikon dari logo sumber.
 - **Koleksi 01:** 27 produk (kaos, hoodie, jaket zip, stiker, gantungan kunci, enamel pin, patch, tote) ada di `src/data/koleksi-01.ts`. `npm run db:seed:koleksi01` memasukkannya ke database (produk yang sudah ada tidak diubah, placeholder lama disembunyikan). Foto produk dibuat dari `design/koleksi-01/koleksi-01.html` dengan `npm run render:mockups` (butuh Chrome).
 
@@ -125,8 +130,7 @@ Kode yang sama di-deploy dua kali: **toko asli** dan **demo portofolio**. Langka
 
 ## Roadmap
 
-- **Tahap 2: ongkir otomatis per kurir** (RajaOngkir/Komerce: JNE, J&T, SiCepat). Antarmuka `ShippingRateProvider` sudah menerima alamat terstruktur dan berat, jadi cukup tambah satu provider di `src/lib/shipping/`.
-- Akun pembeli dan riwayat pesanan.
+- Booking pickup kurir dan resi otomatis (RajaOngkir Delivery API).
 - Kupon/diskon.
 - Notifikasi email/WhatsApp otomatis.
 - Integrasi ke TokoKu CRM.
