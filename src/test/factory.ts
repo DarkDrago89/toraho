@@ -59,6 +59,8 @@ export async function makeOrder(
     qty?: number;
     price?: number;
     paymentMethod?: "MIDTRANS" | "MANUAL";
+    /** Email checkout (lewat createOrder, jadi ikut dinormalkan seperti pesanan asli). */
+    email?: string;
     now?: Date;
     set?: import("@prisma/client").Prisma.OrderUpdateInput;
   } = {},
@@ -71,6 +73,7 @@ export async function makeOrder(
       lines: [{ variantId: variant.id, qty: o.qty ?? 1 }],
       customerName: "Pembeli Tes",
       phone: "081234567890",
+      email: o.email,
       provinceCode: "JB",
       city: "Bandung",
       district: "Coblong",

@@ -13,6 +13,8 @@ type Props = { searchParams: Promise<{ next?: string; error?: string }> };
 
 const ERROR_TEXT: Record<string, string> = {
   AccessDenied: "Akun Google ini belum bisa dipakai: emailnya belum terverifikasi, atau sudah terhubung ke akun Google lain.",
+  OAuthCallbackError: "Login Google dibatalkan atau gagal. Silakan coba lagi.",
+  OAuthSignInError: "Tidak bisa membuka halaman login Google. Silakan coba lagi.",
 };
 
 export default async function CustomerLoginPage({ searchParams }: Props) {

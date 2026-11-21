@@ -51,7 +51,8 @@ const schema = z.object({
     .string()
     .trim()
     .optional()
-    .transform((v) => (v ? v : undefined))
+    // Huruf kecil: email dipakai untuk mencocokkan pesanan ke akun Google (pencocokan persis, tanpa ILIKE).
+    .transform((v) => (v ? v.toLowerCase() : undefined))
     .pipe(z.email("Email tidak valid").optional()),
   // Wilayah divalidasi terpisah (manualAddress): pada mode kurir datanya diambil dari server.
   provinceCode: z.string().trim().max(10),

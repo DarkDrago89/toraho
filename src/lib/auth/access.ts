@@ -13,8 +13,8 @@ const inArea = (pathname: string, base: string) => pathname === base || pathname
 export function authorizeRequest(pathname: string, role: Role | undefined): AccessDecision {
   if (inArea(pathname, "/admin")) {
     if (inArea(pathname, "/admin/masuk")) return role === "admin" ? { redirect: "/admin" } : { allow: true };
-    // allow:false → NextAuth mengarahkan ke pages.signIn (/admin/masuk).
-    return role === "admin" ? { allow: true } : { allow: false };
+    // Redirect eksplisit: pages.signIn milik NextAuth adalah /masuk (pembeli), dipakai juga untuk error login Google.
+    return role === "admin" ? { allow: true } : { redirect: "/admin/masuk" };
   }
   if (inArea(pathname, "/akun")) {
     return role === "customer" ? { allow: true } : { redirect: `/masuk?next=${encodeURIComponent(pathname)}` };
@@ -22,11 +22,22 @@ export function authorizeRequest(pathname: string, role: Role | undefined): Acce
   return { allow: true };
 }
 
-/** Tujuan setelah login: hanya path internal, supaya tautan login tidak bisa dipakai untuk open redirect. */
+const SELF = "http://toraho.invalid";
+
+/**
+ * Tujuan setelah login: hanya path internal, supaya tautan login tidak bisa dipakai untuk open redirect.
+ * Diurai dengan parser URL (sama seperti browser, yang membuang tab/baris baru dan menganggap "\" sebagai "/"),
+ * lalu asalnya harus tetap situs ini. Yang dikembalikan adalah path yang sudah dinormalkan.
+ */
 export function safeNextPath(next: unknown, fallback = "/akun"): string {
   if (typeof next !== "string" || !next.startsWith("/")) return fallback;
-  if (next.startsWith("//") || next.startsWith("/\\")) return fallback;
-  return next;
+  try {
+    const url = new URL(next, SELF);
+    if (url.origin !== SELF) return fallback;
+    return url.pathname + url.search + url.hash;
+  } catch {
+    return fallback;
+  }
 }
 
 /** Pertahanan kedua di server: middleware hanya melindungi halaman, bukan server action. */

@@ -19,8 +19,8 @@ const codes: Record<string, string> = {};
 beforeAll(async () => {
   a = await makeCustomer();
   b = await makeCustomer();
-  // Pesanan tamu dengan email A (beda huruf besar-kecil) → tampil di daftar A, tapi belum terhubung.
-  codes.guestSameEmail = (await makeOrder({ set: { email: a.email.toUpperCase() } })).order.code;
+  // Pesanan tamu dengan email A (diketik dengan huruf besar) → tampil di daftar A, tapi belum terhubung.
+  codes.guestSameEmail = (await makeOrder({ email: a.email.toUpperCase() })).order.code;
   // Pesanan saat A login → milik A walau emailnya lain.
   codes.ownById = (await makeOrder({ set: { email: "lain@contoh.id", customer: { connect: { id: a.id } } } })).order.code;
   // Pesanan tamu email lain → bukan milik A.
@@ -49,6 +49,26 @@ describe("listCustomerOrders", () => {
 
   it("pembeli tidak dikenal → daftar kosong", async () => {
     expect(await listCustomerOrders("tidak-ada")).toEqual([]);
+  });
+});
+
+describe("pencocokan email persis", () => {
+  it("email checkout disimpan dalam huruf kecil", async () => {
+    const { order } = await makeOrder({ email: "  Budi.Santoso@Example.COM " });
+    expect(order.email).toBe("budi.santoso@example.com");
+  });
+
+  it("_ dan % di email tidak dianggap wildcard (pesanan email lain tidak ikut tampil)", async () => {
+    const tag = uid("wild");
+    const underscore = await prisma.customer.create({ data: { googleSub: `${tag}-u`, email: `${tag}_x@gmail.com`, name: "U" } });
+    const percent = await prisma.customer.create({ data: { googleSub: `${tag}-p`, email: `${tag}%@gmail.com`, name: "P" } });
+    // Email yang hanya cocok jika _ / % dibaca sebagai wildcard.
+    const other = (await makeOrder({ email: `${tag}ax@gmail.com` })).order.code;
+    const other2 = (await makeOrder({ email: `${tag}zzz@gmail.com` })).order.code;
+    expect((await listCustomerOrders(underscore.id)).map((o) => o.code)).not.toContain(other);
+    expect((await listCustomerOrders(percent.id)).map((o) => o.code)).not.toContain(other2);
+    expect(await linkGuestOrder(other, PHONE, underscore.id)).toBe(false);
+    expect(await linkGuestOrder(other2, PHONE, percent.id)).toBe(false);
   });
 });
 

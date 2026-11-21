@@ -7,10 +7,11 @@ describe("authorizeRequest", () => {
     expect(authorizeRequest("/katalog", "customer")).toEqual({ allow: true });
   });
 
-  it("area admin hanya untuk peran admin", () => {
-    expect(authorizeRequest("/admin/produk", undefined)).toEqual({ allow: false });
-    expect(authorizeRequest("/admin/produk", "customer")).toEqual({ allow: false });
-    expect(authorizeRequest("/admin", "customer")).toEqual({ allow: false });
+  it("area admin hanya untuk peran admin; selain itu diarahkan ke halaman masuk admin", () => {
+    // Redirect eksplisit: halaman masuk default NextAuth adalah /masuk (pembeli), bukan /admin/masuk.
+    expect(authorizeRequest("/admin/produk", undefined)).toEqual({ redirect: "/admin/masuk" });
+    expect(authorizeRequest("/admin/produk", "customer")).toEqual({ redirect: "/admin/masuk" });
+    expect(authorizeRequest("/admin", "customer")).toEqual({ redirect: "/admin/masuk" });
     expect(authorizeRequest("/admin/produk", "admin")).toEqual({ allow: true });
   });
 
@@ -43,6 +44,19 @@ describe("safeNextPath", () => {
       expect(safeNextPath(bad)).toBe("/akun");
     }
     expect(safeNextPath("//evil.com", "/checkout")).toBe("/checkout");
+  });
+
+  it("menolak trik tab/baris baru yang dibuang browser (/\\t/evil → //evil)", () => {
+    for (const bad of ["/\t/evil.example", "/\n/evil.example", "/\t\\evil.example", "/\r\n/evil.example", "/ \t/evil.example"]) {
+      const out = safeNextPath(bad);
+      // Hasil harus tetap path di situs ini: bukan alamat luar setelah browser membersihkan URL.
+      expect(new URL(out, "https://toraho.id").origin).toBe("https://toraho.id");
+    }
+    expect(safeNextPath("/\t/evil.example")).toBe("/akun");
+  });
+
+  it("mengembalikan path yang sudah dinormalkan (tanpa karakter kontrol)", () => {
+    expect(safeNextPath("/pesanan/TRH-1?hp=0812#atas")).toBe("/pesanan/TRH-1?hp=0812#atas");
   });
 });
 

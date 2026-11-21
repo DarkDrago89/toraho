@@ -6,8 +6,9 @@ import { authorizeRequest } from "@/lib/auth/access";
  * Peran (admin/customer) diisi saat login di `src/auth.ts`; di sini hanya dibaca.
  */
 export const authConfig = {
-  // signIn: tujuan saat area admin ditolak. error: kegagalan login Google (mis. AccessDenied).
-  pages: { signIn: "/admin/masuk", error: "/masuk" },
+  // Halaman masuk/error NextAuth = halaman pembeli: semua kegagalan login Google (AccessDenied, dibatalkan di
+  // layar Google, dll.) kembali ke /masuk. Area admin mengarahkan sendiri ke /admin/masuk (authorizeRequest).
+  pages: { signIn: "/masuk", error: "/masuk" },
   session: { strategy: "jwt", maxAge: 7 * 24 * 3600 },
   providers: [],
   callbacks: {

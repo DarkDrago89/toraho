@@ -135,6 +135,8 @@ model Order {
   @@index([status])
   @@index([paidAt])
   @@index([customerId])
+  /// Email selalu huruf kecil (dinormalkan saat checkout) untuk dicocokkan persis dengan email akun Google.
+  @@index([email])
 }
 
 /// Pembeli yang login dengan Google. Hanya dipakai untuk riwayat pesanan; checkout tanpa akun tetap bisa.

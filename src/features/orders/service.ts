@@ -52,9 +52,11 @@ export async function getOrderForCustomer(code: string, customerId: string): Pro
 /**
  * Pesanan yang tampil di halaman Akun: milik akun, atau pesanan tamu (belum terhubung) yang emailnya
  * sama dengan email Google pembeli. Pesanan tamu hanya tampil ringkas, karena email checkout tidak diverifikasi.
+ * Email pesanan dan email pembeli sama-sama disimpan huruf kecil, jadi dicocokkan PERSIS — bukan
+ * `mode: "insensitive"`, yang di Postgres menjadi ILIKE dan memperlakukan `_` / `%` sebagai wildcard.
  */
 export function ownedOrderWhere(c: { id: string; email: string }): Prisma.OrderWhereInput {
-  return { OR: [{ customerId: c.id }, { customerId: null, email: { equals: c.email, mode: "insensitive" } }] };
+  return { OR: [{ customerId: c.id }, { customerId: null, email: c.email }] };
 }
 
 export type CustomerOrderRow = { code: string; createdAt: Date; status: OrderStatus; total: number; itemCount: number; linked: boolean };
@@ -88,7 +90,7 @@ export async function linkGuestOrder(code: string, phone: string, customerId: st
   const c = await prisma.customer.findUnique({ where: { id: customerId }, select: { email: true } });
   if (!p || !c) return false;
   const r = await prisma.order.updateMany({
-    where: { code: normCode(code), phone: p, customerId: null, email: { equals: c.email, mode: "insensitive" } },
+    where: { code: normCode(code), phone: p, customerId: null, email: c.email },
     data: { customerId },
   });
   return r.count === 1;
