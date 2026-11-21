@@ -2,14 +2,13 @@ import Link from "next/link";
 import { Wordmark } from "@/components/brand/Logo";
 import { CartBadge } from "@/features/cart/CartBadge";
 import { CartProvider } from "@/features/cart/CartProvider";
+import { listVisibleCategories } from "@/features/catalog/service";
+import { getSettings } from "@/features/settings/service";
+import { toWaNumber } from "@/lib/domain/phone";
 
-const NAV = [
-  { href: "/katalog?kategori=jaket", label: "Jaket" },
-  { href: "/katalog?kategori=kaos", label: "Kaos" },
-  { href: "/katalog?kategori=merch", label: "Merch" },
-];
-
-export default function ShopLayout({ children }: { children: React.ReactNode }) {
+export default async function ShopLayout({ children }: { children: React.ReactNode }) {
+  const [categories, settings] = await Promise.all([listVisibleCategories(), getSettings()]);
+  const NAV = categories.slice(0, 5).map((c) => ({ href: `/katalog?kategori=${c.slug}`, label: c.name }));
   return (
     <CartProvider>
     <div className="flex min-h-dvh flex-col">
@@ -63,7 +62,18 @@ export default function ShopLayout({ children }: { children: React.ReactNode }) 
           </div>
           <div className="text-sm">
             <p className="eyebrow mb-3">Kontak</p>
-            <p className="text-muted">WhatsApp toko diatur di admin.</p>
+            {settings.whatsapp ? (
+              <a
+                href={`https://wa.me/${toWaNumber(settings.whatsapp)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted underline-offset-4 hover:text-paper hover:underline"
+              >
+                WhatsApp {settings.whatsapp}
+              </a>
+            ) : (
+              <p className="text-muted">Hubungi kami lewat halaman pesanan.</p>
+            )}
           </div>
         </div>
         <p className="border-t border-line py-4 text-center text-[0.7rem] tracking-[0.25em] text-muted uppercase">

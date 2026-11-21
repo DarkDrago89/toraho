@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/db";
+import { normalizePhone } from "@/lib/domain/phone";
+import { isProvinceCode } from "@/lib/shipping/provinces";
 
 export type BankAccount = { bank: string; number: string; holder: string };
 
@@ -24,6 +26,46 @@ export async function updateSettings(patch: Partial<StoreSettings>): Promise<Sto
   const next = { ...(await getSettings()), ...patch };
   await prisma.setting.upsert({ where: { key: KEY }, create: { key: KEY, value: next }, update: { value: next } });
   return next;
+}
+
+export type SaveResult = { ok: true } | { ok: false; errors: string[] };
+
+/** Validasi + simpan pengaturan dari form admin. */
+export async function saveSettings(input: StoreSettings): Promise<SaveResult> {
+  const errors: string[] = [];
+  const hours = Number(input.paymentWindowHours);
+  if (!Number.isInteger(hours) || hours < 1 || hours > 72) errors.push("Batas waktu bayar harus 1–72 jam");
+
+  let whatsapp = "";
+  if (input.whatsapp.trim()) {
+    const n = normalizePhone(input.whatsapp);
+    if (!n) errors.push("Nomor WhatsApp tidak valid");
+    else whatsapp = n;
+  }
+
+  const bankAccounts: BankAccount[] = [];
+  for (const b of input.bankAccounts) {
+    const bank = b.bank.trim().toUpperCase();
+    const number = b.number.replace(/[\s-]/g, "");
+    const holder = b.holder.trim();
+    if (!bank && !number && !holder) continue; // baris kosong diabaikan
+    if (!bank || !holder) errors.push("Nama bank dan nama pemilik rekening wajib diisi");
+    if (!/^\d{5,20}$/.test(number)) errors.push("Nomor rekening hanya boleh angka");
+    bankAccounts.push({ bank, number, holder });
+  }
+
+  if (errors.length) return { ok: false, errors: [...new Set(errors)] };
+  await updateSettings({ paymentWindowHours: hours, whatsapp, bankAccounts });
+  return { ok: true };
+}
+
+/** Validasi + simpan tarif ongkir dari form admin (0 = provinsi belum dilayani). */
+export async function saveShippingRates(rates: Record<string, number>): Promise<SaveResult> {
+  const unknown = Object.keys(rates).filter((c) => !isProvinceCode(c));
+  if (unknown.length) return { ok: false, errors: [`Kode provinsi tidak dikenal: ${unknown.join(", ")}`] };
+  if (Object.values(rates).some((v) => !Number.isInteger(v) || v < 0)) return { ok: false, errors: ["Tarif ongkir harus angka bulat ≥ 0"] };
+  await setShippingRates(rates);
+  return { ok: true };
 }
 
 export async function getShippingRates(): Promise<Record<string, number>> {
