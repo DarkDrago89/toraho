@@ -49,6 +49,48 @@ export async function makeProduct(o: ProductOpts = {}) {
   return { product, variant: product.variants[0], variants: product.variants, categoryId };
 }
 
+/**
+ * Pesanan lewat jalur checkout asli (stok ikut ditahan). Ongkir JB Rp15.000 disiapkan otomatis.
+ * `status`/override lain langsung ditulis ke DB setelah dibuat.
+ */
+export async function makeOrder(
+  o: {
+    stock?: number;
+    qty?: number;
+    price?: number;
+    paymentMethod?: "MIDTRANS" | "MANUAL";
+    now?: Date;
+    set?: import("@prisma/client").Prisma.OrderUpdateInput;
+  } = {},
+) {
+  const { createOrder } = await import("@/features/checkout/service");
+  await prisma.shippingRate.upsert({ where: { provinceCode: "JB" }, create: { provinceCode: "JB", cost: 15000 }, update: { cost: 15000 } });
+  const { variant, product } = await makeProduct({ stock: o.stock ?? 5, price: o.price ?? 100000 });
+  const r = await createOrder(
+    {
+      lines: [{ variantId: variant.id, qty: o.qty ?? 1 }],
+      customerName: "Pembeli Tes",
+      phone: "081234567890",
+      provinceCode: "JB",
+      city: "Bandung",
+      district: "Coblong",
+      postalCode: "40132",
+      addressLine: "Jl. Tes 1",
+      paymentMethod: o.paymentMethod ?? "MIDTRANS",
+    },
+    o.now ?? new Date(),
+  );
+  if (!r.ok) throw new Error(r.errors.join(", "));
+  const order = o.set
+    ? await prisma.order.update({ where: { id: r.order.id }, data: o.set })
+    : await prisma.order.findUniqueOrThrow({ where: { id: r.order.id } });
+  return { order, variant, product };
+}
+
+export async function orderOf(id: string) {
+  return prisma.order.findUniqueOrThrow({ where: { id } });
+}
+
 export async function stockOf(variantId: string) {
   return (await prisma.variant.findUniqueOrThrow({ where: { id: variantId } })).stock;
 }

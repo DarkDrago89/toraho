@@ -35,12 +35,25 @@ export async function releaseStock(tx: Tx, orderId: string): Promise<boolean> {
   return true;
 }
 
-/** Menahan ulang stok untuk pesanan yang stoknya sudah dilepas (mis. bayar setelah kedaluwarsa). */
-export async function reholdStock(tx: Tx, orderId: string): Promise<void> {
+/**
+ * Mencoba menahan ulang stok pesanan yang stoknya sudah dilepas (mis. bayar setelah kedaluwarsa).
+ * Tidak melempar: jika satu baris gagal, potongan baris sebelumnya dikembalikan dan hasilnya false,
+ * sehingga pemanggil tetap bisa menyimpan keputusan lain (PERLU_TINDAKAN) di transaksi yang sama.
+ */
+export async function tryReholdStock(tx: Tx, orderId: string): Promise<boolean> {
   const items = await tx.orderItem.findMany({ where: { orderId } });
-  await holdStock(
-    tx,
-    items.map((i) => ({ variantId: i.variantId, qty: i.qty, label: `${i.productName} (${i.variantLabel})` })),
-  );
+  const done: { variantId: string; qty: number }[] = [];
+  for (const it of items) {
+    const res = await tx.variant.updateMany({
+      where: { id: it.variantId, stock: { gte: it.qty } },
+      data: { stock: { decrement: it.qty } },
+    });
+    if (res.count === 0) {
+      for (const d of done) await tx.variant.update({ where: { id: d.variantId }, data: { stock: { increment: d.qty } } });
+      return false;
+    }
+    done.push({ variantId: it.variantId, qty: it.qty });
+  }
   await tx.order.update({ where: { id: orderId }, data: { stockHeld: true } });
+  return true;
 }
