@@ -35,7 +35,9 @@ export default async function SettingsPage() {
               </div>
               <div className="flex justify-between gap-4">
                 <dt className="text-muted">Notifikasi</dt>
-                <dd className="truncate text-right">{process.env.MIDTRANS_NOTIFICATION_URL?.trim() || "URL di dashboard Midtrans"}</dd>
+                <dd className="truncate text-right">
+                  {process.env.MIDTRANS_NOTIFICATION_URL?.trim() && !production ? process.env.MIDTRANS_NOTIFICATION_URL.trim() : "URL di dashboard Midtrans"}
+                </dd>
               </div>
             </dl>
             <p className="mt-3 text-xs text-muted">

@@ -113,7 +113,7 @@ npm install
 npx prisma migrate dev        # skema ke database lokal
 npm run db:test:prepare       # skema ke database tes
 npm run db:seed               # admin + pengaturan + produk contoh
-npm run dev                   # http://localhost:3000  (admin: /admin)
+npm run dev -- -p 3001        # http://localhost:3001  (admin: /admin)
 ```
 
 - **Akun admin (lokal/demo):** `admin@toraho.test`, dengan kata sandi dari `SEED_ADMIN_PASSWORD` di `.env`.

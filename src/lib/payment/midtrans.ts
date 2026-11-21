@@ -68,10 +68,18 @@ export function createMidtransProvider(cfg: Config): PaymentProvider {
 export function midtransFromEnv(): PaymentProvider | null {
   const serverKey = process.env.MIDTRANS_SERVER_KEY;
   if (!serverKey) return null;
+  const isProduction = process.env.MIDTRANS_IS_PRODUCTION === "true";
+  let notificationUrl = process.env.MIDTRANS_NOTIFICATION_URL?.trim() || undefined;
+  // Override hanya untuk uji sandbox lewat tunnel. Di production, URL yang tertinggal akan mengirim webhook
+  // pembayaran asli ke tunnel yang sudah mati → pesanan lunas tidak pernah tercatat. Pakai URL di dashboard.
+  if (isProduction && notificationUrl) {
+    console.warn("[midtrans] MIDTRANS_NOTIFICATION_URL diabaikan di production; atur Payment Notification URL di dashboard Midtrans.");
+    notificationUrl = undefined;
+  }
   return createMidtransProvider({
     serverKey,
-    isProduction: process.env.MIDTRANS_IS_PRODUCTION === "true",
+    isProduction,
     siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3001",
-    notificationUrl: process.env.MIDTRANS_NOTIFICATION_URL?.trim() || undefined,
+    notificationUrl,
   });
 }

@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createMidtransProvider, verifyMidtransSignature } from "./midtrans";
+import { createMidtransProvider, midtransFromEnv, verifyMidtransSignature } from "./midtrans";
 
 const KEY = "SB-Mid-server-TEST";
 
@@ -98,6 +98,31 @@ describe("createPayment", () => {
     vi.stubGlobal("fetch", fetchMock);
     await createMidtransProvider({ serverKey: KEY, isProduction: false, siteUrl: "x" }).createPayment(minimalPayment);
     expect(new Headers(fetchMock.mock.calls[0][1].headers).has("X-Override-Notification")).toBe(false);
+  });
+
+  it("di production, URL notifikasi override diabaikan (webhook asli tidak boleh lari ke tunnel lokal)", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    vi.stubEnv("MIDTRANS_SERVER_KEY", KEY);
+    vi.stubEnv("MIDTRANS_IS_PRODUCTION", "true");
+    vi.stubEnv("MIDTRANS_NOTIFICATION_URL", "https://lama.ngrok-free.app/api/midtrans/notification");
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ token: "t", redirect_url: "u" }), { status: 201 }));
+    vi.stubGlobal("fetch", fetchMock);
+    await midtransFromEnv()!.createPayment(minimalPayment);
+    expect(new Headers(fetchMock.mock.calls[0][1].headers).has("X-Override-Notification")).toBe(false);
+    expect(warn).toHaveBeenCalled();
+    vi.unstubAllEnvs();
+    warn.mockRestore();
+  });
+
+  it("di sandbox, URL notifikasi override dari env dipakai", async () => {
+    vi.stubEnv("MIDTRANS_SERVER_KEY", KEY);
+    vi.stubEnv("MIDTRANS_IS_PRODUCTION", "false");
+    vi.stubEnv("MIDTRANS_NOTIFICATION_URL", "https://abc.ngrok-free.app/api/midtrans/notification");
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ token: "t", redirect_url: "u" }), { status: 201 }));
+    vi.stubGlobal("fetch", fetchMock);
+    await midtransFromEnv()!.createPayment(minimalPayment);
+    expect(new Headers(fetchMock.mock.calls[0][1].headers).get("X-Override-Notification")).toBe("https://abc.ngrok-free.app/api/midtrans/notification");
+    vi.unstubAllEnvs();
   });
 
   it("melempar error yang jelas bila Midtrans menolak", async () => {
