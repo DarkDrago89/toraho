@@ -9,7 +9,6 @@ beforeAll(() => {
   process.env.MIDTRANS_SERVER_KEY = KEY;
 });
 
-let txSeq = 0;
 function notif(
   order: { code: string; total: number },
   transaction_status: string,
