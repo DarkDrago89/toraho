@@ -4,9 +4,8 @@ import { ShippingApiError } from "@/lib/shipping/rajaongkir";
 
 const state = vi.hoisted(() => ({ configured: true, searchDestinations: vi.fn() }));
 vi.mock("@/lib/shipping/config", () => ({
-  getRajaOngkirConfig: vi.fn(async () =>
-    state.configured ? { client: { searchDestinations: state.searchDestinations }, origin: { id: "1", label: "x" }, couriers: ["jne"] } : null,
-  ),
+  // Pencarian cukup butuh API key (asal pengiriman diatur admin memakai pencarian ini juga).
+  getRajaOngkirClient: vi.fn(() => (state.configured ? { searchDestinations: state.searchDestinations } : null)),
 }));
 
 const { GET } = await import("./route");
@@ -33,7 +32,7 @@ describe("GET /api/ongkir/tujuan", () => {
     expect(state.searchDestinations).toHaveBeenCalledWith("cibubur", 10);
   });
 
-  it("RajaOngkir belum dikonfigurasi → 404 mode standar", async () => {
+  it("API key RajaOngkir belum diisi → 404 mode standar", async () => {
     state.configured = false;
     const res = await GET(req("cibubur"));
     expect(res.status).toBe(404);

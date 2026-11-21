@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createRateLimiter } from "@/lib/rate-limit";
-import { getRajaOngkirConfig } from "@/lib/shipping/config";
+import { getRajaOngkirClient } from "@/lib/shipping/config";
 import { ShippingApiError } from "@/lib/shipping/rajaongkir";
 
 // Rem sederhana terhadap skrip: tiap pencarian baru memakai kuota RajaOngkir.
@@ -17,11 +17,12 @@ export async function GET(req: NextRequest) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "lokal";
   if (!allow(ip)) return NextResponse.json({ error: "Terlalu banyak pencarian, coba lagi beberapa menit lagi" }, { status: 429 });
 
-  const config = await getRajaOngkirConfig();
-  if (!config) return NextResponse.json({ mode: "standar", results: [] }, { status: 404 });
+  // Cukup API key: admin memakai rute ini juga untuk memilih asal pengiriman.
+  const client = getRajaOngkirClient();
+  if (!client) return NextResponse.json({ mode: "standar", results: [] }, { status: 404 });
 
   try {
-    const results = await config.client.searchDestinations(q, 10);
+    const results = await client.searchDestinations(q, 10);
     return NextResponse.json({ results });
   } catch (e) {
     if (!(e instanceof ShippingApiError)) throw e;

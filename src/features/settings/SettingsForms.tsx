@@ -4,8 +4,11 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { btnGhost, btnPrimary, ErrorList, fieldCls, inputCls, Label } from "@/components/ui/admin";
 import { JAVA_PROVINCES } from "@/lib/shipping/provinces";
-import { saveSettingsAction, saveShippingRatesAction } from "./actions";
-import type { StoreSettings } from "./service";
+import { DestinationSearch } from "@/features/checkout/DestinationSearch";
+import { courierLabel } from "@/lib/shipping/describe";
+import type { DestinationView } from "@/lib/shipping/types";
+import { saveSettingsAction, saveShippingOriginAction, saveShippingRatesAction } from "./actions";
+import type { ShippingOrigin, StoreSettings } from "./service";
 
 function useSaver() {
   const router = useRouter();
@@ -128,5 +131,79 @@ export function ShippingRatesForm({ provinces, initial }: { provinces: { code: s
         {saved && <span role="status" className="text-sm text-emerald-300">Tersimpan ✓</span>}
       </div>
     </form>
+  );
+}
+
+/** Ongkir kurir (RajaOngkir): status + asal pengiriman, dipilih lewat pencarian yang sama dengan checkout. */
+export function ShippingOriginForm({ initial, apiKeySet, couriers }: { initial: ShippingOrigin | null; apiKeySet: boolean; couriers: string[] }) {
+  const [picked, setPicked] = useState<DestinationView | null>(null);
+  const [unavailable, setUnavailable] = useState(false);
+  const { pending, errors, saved, run } = useSaver();
+  const active = apiKeySet && !!initial;
+
+  return (
+    <section className="space-y-4 border border-line p-5 text-sm">
+      <h2 className="display text-lg">Ongkir Kurir (RajaOngkir)</h2>
+      <dl className="space-y-1">
+        <div className="flex justify-between gap-4">
+          <dt className="text-muted">Status</dt>
+          <dd className={active ? "text-emerald-300" : "text-amber-300"}>
+            {active ? "● Aktif" : !apiKeySet ? "● Belum diatur (RAJAONGKIR_API_KEY kosong)" : "● Pilih asal pengiriman"}
+          </dd>
+        </div>
+        <div className="flex justify-between gap-4">
+          <dt className="text-muted">Kurir</dt>
+          <dd>{couriers.map(courierLabel).join(", ")}</dd>
+        </div>
+        <div className="flex justify-between gap-4">
+          <dt className="text-muted">Asal pengiriman</dt>
+          <dd className="text-right">{initial?.label ?? "—"}</dd>
+        </div>
+      </dl>
+
+      {apiKeySet &&
+        (unavailable ? (
+          <p className="border border-line p-3 text-xs text-amber-300">
+            Pencarian RajaOngkir gagal. Periksa API key dan kuota di dashboard Komerce, lalu muat ulang halaman ini.
+          </p>
+        ) : (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (picked) run(() => saveShippingOriginAction({ id: picked.id, label: picked.label }));
+            }}
+            className="space-y-3"
+          >
+            <DestinationSearch
+              value={picked}
+              onChange={setPicked}
+              onUnavailable={() => setUnavailable(true)}
+              label={initial ? "Ganti asal pengiriman" : "Cari kecamatan asal pengiriman"}
+              hint="Kecamatan/kelurahan tempat paket dikirim, mis. Coblong atau 40132."
+            />
+            <ErrorList errors={errors} />
+            <div className="flex flex-wrap items-center gap-3">
+              <button disabled={pending || !picked} className={btnPrimary}>
+                {pending ? "Menyimpan…" : "Simpan Asal"}
+              </button>
+              {initial && (
+                <button type="button" disabled={pending} onClick={() => run(() => saveShippingOriginAction(null))} className={btnGhost}>
+                  Hapus asal
+                </button>
+              )}
+              {saved && (
+                <span role="status" className="text-sm text-emerald-300">
+                  Tersimpan ✓
+                </span>
+              )}
+            </div>
+          </form>
+        ))}
+
+      <p className="text-xs text-muted">
+        Tanpa API key atau asal pengiriman, checkout memakai tarif per provinsi. Tarif per provinsi juga menjadi cadangan saat RajaOngkir gagal
+        atau kuota habis. Panduan: docs/rajaongkir.md
+      </p>
+    </section>
   );
 }

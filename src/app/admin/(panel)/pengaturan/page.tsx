@@ -1,13 +1,14 @@
 import { PageHeader } from "@/components/ui/admin";
-import { getSettings, getShippingRates } from "@/features/settings/service";
-import { ShippingRatesForm, StoreSettingsForm } from "@/features/settings/SettingsForms";
+import { getSettings, getShippingOrigin, getShippingRates } from "@/features/settings/service";
+import { ShippingOriginForm, ShippingRatesForm, StoreSettingsForm } from "@/features/settings/SettingsForms";
+import { couriersFromEnv } from "@/lib/shipping/config";
 import { PROVINCES } from "@/lib/shipping/provinces";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Pengaturan" };
 
 export default async function SettingsPage() {
-  const [settings, rates] = await Promise.all([getSettings(), getShippingRates()]);
+  const [settings, rates, origin] = await Promise.all([getSettings(), getShippingRates(), getShippingOrigin()]);
   const midtransOn = !!process.env.MIDTRANS_SERVER_KEY;
   const production = process.env.MIDTRANS_IS_PRODUCTION === "true";
 
@@ -39,7 +40,10 @@ export default async function SettingsPage() {
             </p>
           </section>
         </div>
-        <ShippingRatesForm provinces={PROVINCES.map((p) => ({ code: p.code, name: p.name }))} initial={rates} />
+        <div className="space-y-6">
+          <ShippingOriginForm initial={origin} apiKeySet={!!process.env.RAJAONGKIR_API_KEY?.trim()} couriers={couriersFromEnv()} />
+          <ShippingRatesForm provinces={PROVINCES.map((p) => ({ code: p.code, name: p.name }))} initial={rates} />
+        </div>
       </div>
     </>
   );

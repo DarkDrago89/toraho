@@ -7,7 +7,7 @@ import { getAdminOrder, needsRefund } from "@/features/orders/admin";
 import { OrderActions } from "@/features/orders/OrderActions";
 import { toWaNumber } from "@/lib/domain/phone";
 import { formatDateTime, formatRupiah } from "@/lib/format";
-import { provinceName } from "@/lib/shipping/provinces";
+import { describeShipping, formatAddress } from "@/lib/shipping/describe";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Detail Pesanan" };
@@ -55,6 +55,9 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
             <dl className="mt-4 space-y-1 border-t border-line pt-3 text-sm">
               <div className="flex justify-between"><dt className="text-muted">Subtotal</dt><dd>{formatRupiah(o.subtotal)}</dd></div>
               <div className="flex justify-between"><dt className="text-muted">Ongkir ({(o.weightGrams / 1000).toFixed(2)} kg)</dt><dd>{formatRupiah(o.shippingCost)}</dd></div>
+              {describeShipping(o) && (
+                <div className="flex justify-between"><dt className="text-muted">Kirim dengan</dt><dd className="font-semibold">{describeShipping(o)}</dd></div>
+              )}
               <div className="flex justify-between font-bold"><dt>Total</dt><dd>{formatRupiah(o.total)}</dd></div>
             </dl>
           </section>
@@ -117,7 +120,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
             </a>
             <h2 className="eyebrow mt-5 mb-2">Alamat kirim</h2>
             <p className="text-muted">
-              {o.addressLine}, {o.district}, {o.city}, {provinceName(o.provinceCode)} {o.postalCode}
+              {formatAddress(o)}
             </p>
             {o.trackingNumber && (
               <p className="mt-3">

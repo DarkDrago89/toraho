@@ -1,5 +1,6 @@
 import { getShippingRates } from "@/features/settings/service";
 import { getRajaOngkirConfig, type RajaOngkirConfig } from "./config";
+import { courierLabel } from "./describe";
 import { ProvinceRateProvider, STANDARD_OPTION_ID } from "./province-rate";
 import { ShippingApiError, type RawService } from "./rajaongkir";
 import type { ShippingDestination, ShippingOption } from "./types";
@@ -13,14 +14,12 @@ export async function getShippingMode(): Promise<ShippingMode> {
   return (await getRajaOngkirConfig()) ? "kurir" : "standar";
 }
 
-const COURIER_LABEL: Record<string, string> = { jne: "JNE", jnt: "J&T", sicepat: "SiCepat", pos: "POS", tiki: "TIKI", anteraja: "AnterAja", ninja: "Ninja" };
-
 function toOption(s: RawService): ShippingOption {
   return {
     id: `${s.courier}:${s.service}`,
     courier: s.courier,
     service: s.service,
-    label: `${COURIER_LABEL[s.courier] ?? s.courierName} ${s.service}`,
+    label: `${courierLabel(s.courier)} ${s.service}`,
     description: s.description,
     cost: s.cost,
     etd: s.etd,

@@ -14,14 +14,20 @@ export function couriersFromEnv(raw: string | undefined = process.env.RAJAONGKIR
   return list.length ? [...new Set(list)] : DEFAULT_COURIERS.split(":");
 }
 
+/** Klien RajaOngkir jika API key diisi. Cukup untuk mencari tujuan (termasuk memilih asal di admin). */
+export function getRajaOngkirClient(): RajaOngkirClient | null {
+  const apiKey = process.env.RAJAONGKIR_API_KEY?.trim();
+  return apiKey ? createRajaOngkirClient({ apiKey }) : null;
+}
+
 /**
  * Ongkir kurir aktif hanya jika API key diisi DAN asal pengiriman sudah diatur di admin.
  * null = mode tarif standar per provinsi.
  */
 export async function getRajaOngkirConfig(): Promise<RajaOngkirConfig | null> {
-  const apiKey = process.env.RAJAONGKIR_API_KEY?.trim();
-  if (!apiKey) return null;
+  const client = getRajaOngkirClient();
+  if (!client) return null;
   const origin = await getShippingOrigin();
   if (!origin) return null;
-  return { client: createRajaOngkirClient({ apiKey }), origin, couriers: couriersFromEnv() };
+  return { client, origin, couriers: couriersFromEnv() };
 }

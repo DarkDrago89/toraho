@@ -10,7 +10,7 @@ import { ProofUploadForm } from "@/features/orders/buyer/ProofUploadForm";
 import { STATUS_LABEL } from "@/lib/domain/order-status";
 import { toWaNumber } from "@/lib/domain/phone";
 import { formatDateTime, formatRupiah } from "@/lib/format";
-import { provinceName } from "@/lib/shipping/provinces";
+import { describeShipping, formatAddress } from "@/lib/shipping/describe";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Status Pesanan", robots: { index: false } };
@@ -157,6 +157,7 @@ export default async function OrderStatusPage({ params, searchParams }: Props) {
           <div className="mt-4 space-y-1 border-t border-line pt-3 text-sm">
             <div className="flex justify-between"><span className="text-muted">Subtotal</span><span>{formatRupiah(order.subtotal)}</span></div>
             <div className="flex justify-between"><span className="text-muted">Ongkir</span><span>{formatRupiah(order.shippingCost)}</span></div>
+            {describeShipping(order) && <p className="text-xs text-muted">{describeShipping(order)}</p>}
             <div className="flex justify-between font-bold"><span>Total</span><span>{formatRupiah(order.total)}</span></div>
           </div>
         </div>
@@ -165,7 +166,7 @@ export default async function OrderStatusPage({ params, searchParams }: Props) {
           <p className="text-sm">{order.customerName}</p>
           <p className="text-sm text-muted">{order.phone}</p>
           <p className="mt-2 text-sm text-muted">
-            {order.addressLine}, {order.district}, {order.city}, {provinceName(order.provinceCode)} {order.postalCode}
+            {formatAddress(order)}
           </p>
         </div>
       </section>
