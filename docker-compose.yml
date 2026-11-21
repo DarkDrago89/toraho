@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: toraho
+      POSTGRES_PASSWORD: toraho
+      POSTGRES_DB: toraho
+    ports:
+      - "5434:5432"
+    volumes:
+      - toraho-data:/var/lib/postgresql/data
+      # Membuat database toraho_test untuk pengujian (hanya saat volume pertama kali dibuat)
+      - ./prisma/docker-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+volumes:
+  toraho-data:
