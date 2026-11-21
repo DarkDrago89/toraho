@@ -9,7 +9,7 @@ export type StockLine = { variantId: string; qty: number; label: string };
  * variantId yang sama. Tanpa ini, keranjang [A,B] dan [B,A] yang checkout bersamaan bisa saling
  * menunggu (deadlock) dan salah satu pembeli melihat halaman error.
  */
-const byVariant = <T extends { variantId: string }>(lines: T[]) => [...lines].sort((a, b) => (a.variantId < b.variantId ? -1 : a.variantId > b.variantId ? 1 : 0));
+const byVariant = <T extends { variantId: string }>(lines: T[]) => lines.toSorted((a, b) => (a.variantId < b.variantId ? -1 : a.variantId > b.variantId ? 1 : 0));
 
 /**
  * Menahan stok untuk setiap baris secara atomik: UPDATE … WHERE stock >= qty.

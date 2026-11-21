@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: { default: "Admin", template: "%s · 
 
 export default async function AdminPanelLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
-  if (!session?.user) redirect("/admin/masuk");
+  if (session?.user?.role !== "admin") redirect("/admin/masuk");
 
   return (
     <div className="min-h-dvh md:grid md:grid-cols-[220px_1fr]">
