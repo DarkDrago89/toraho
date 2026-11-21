@@ -14,7 +14,9 @@ type Props = {
 };
 
 /**
- * Cari tujuan lewat /api/ongkir/tujuan, lalu pilih satu hasil (grup radio).
+ * Cari tujuan lewat /api/ongkir/tujuan, lalu pilih satu hasil (grup radio) dan konfirmasi dengan
+ * "Pakai alamat ini". Konfirmasi terpisah karena tombol panah di grup radio langsung mengganti pilihan:
+ * tanpa itu pengguna keyboard hanya bisa memilih hasil pertama/terakhir.
  * Pencarian berjalan saat tombol "Cari" atau Enter ditekan — bukan tiap ketukan — untuk menghemat kuota API.
  */
 export function DestinationSearch({
@@ -27,18 +29,19 @@ export function DestinationSearch({
   const id = useId();
   const [q, setQ] = useState("");
   const [results, setResults] = useState<DestinationView[] | null>(null);
+  const [choice, setChoice] = useState<string | null>(null);
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const focusInputNext = useRef(false);
+  const changeRef = useRef<HTMLButtonElement>(null);
+  // Ke mana fokus dipindah setelah tampilan berganti (ringkasan ↔ pencarian), agar tidak jatuh ke <body>.
+  const focusNext = useRef<"input" | "change" | null>(null);
 
-  // Setelah "Ganti", kembalikan fokus ke kotak pencarian.
   useEffect(() => {
-    if (!value && focusInputNext.current) {
-      focusInputNext.current = false;
-      inputRef.current?.focus();
-    }
+    if (focusNext.current === "input" && !value) inputRef.current?.focus();
+    if (focusNext.current === "change" && value) changeRef.current?.focus();
+    focusNext.current = null;
   }, [value]);
 
   async function search() {
@@ -61,9 +64,10 @@ export function DestinationSearch({
         return;
       }
       setResults(body.results);
+      setChoice(null);
       setStatus(
         body.results.length
-          ? `${body.results.length} alamat ditemukan. Pilih yang sesuai.`
+          ? `${body.results.length} alamat ditemukan. Pilih yang sesuai, lalu tekan "Pakai alamat ini".`
           : "Alamat tidak ditemukan. Coba nama kecamatan atau kode pos.",
       );
     } catch {
@@ -71,6 +75,16 @@ export function DestinationSearch({
     } finally {
       setLoading(false);
     }
+  }
+
+  function commit() {
+    const picked = results?.find((d) => d.id === choice);
+    if (!picked) {
+      setError("Pilih salah satu alamat dulu");
+      return;
+    }
+    focusNext.current = "change";
+    onChange(picked);
   }
 
   if (value) {
@@ -81,10 +95,12 @@ export function DestinationSearch({
           <p className="mt-1 text-sm">{value.label}</p>
         </div>
         <button
+          ref={changeRef}
           type="button"
           onClick={() => {
-            focusInputNext.current = true;
+            focusNext.current = "input";
             setResults(null);
+            setChoice(null);
             setStatus("");
             onChange(null);
           }}
@@ -157,11 +173,32 @@ export function DestinationSearch({
           <div className="grid gap-2">
             {results.map((d) => (
               <label key={d.id} className={choiceCls}>
-                <input type="radio" name={`${id}-tujuan`} value={d.id} onChange={() => onChange(d)} className="mt-1 accent-white" />
+                <input
+                  type="radio"
+                  name={`${id}-tujuan`}
+                  value={d.id}
+                  checked={choice === d.id}
+                  onChange={() => setChoice(d.id)}
+                  onKeyDown={(e) => {
+                    // Enter di radio = konfirmasi (bukan mengirim form checkout).
+                    if (e.key === "Enter" && !e.nativeEvent.isComposing) {
+                      e.preventDefault();
+                      commit();
+                    }
+                  }}
+                  className="mt-1 accent-white"
+                />
                 <span className="text-sm">{d.label}</span>
               </label>
             ))}
           </div>
+          <button
+            type="button"
+            onClick={commit}
+            className="mt-3 w-full border border-paper py-3 text-xs font-bold tracking-[0.2em] uppercase transition hover:bg-paper hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-paper"
+          >
+            Pakai alamat ini
+          </button>
         </fieldset>
       )}
     </div>

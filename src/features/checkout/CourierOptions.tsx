@@ -14,21 +14,38 @@ type Props = {
   error?: string;
   /** Pesan saat tujuan belum dipilih. */
   emptyHint: string;
+  /** Muat ulang ongkir (tampil saat gagal atau kosong setelah tujuan dipilih). */
+  onRetry?: () => void;
 };
 
 /** Pilihan layanan pengiriman: semua opsi terlihat sebagai radio, urut dari termurah. */
-export function CourierOptions({ options, value, onChange, loading, fallback, error, emptyHint }: Props) {
+export function CourierOptions({ options, value, onChange, loading, fallback, error, emptyHint, onRetry }: Props) {
+  const retry = onRetry && (
+    <button
+      type="button"
+      onClick={onRetry}
+      className="mt-3 border border-line px-4 py-2 text-xs tracking-[0.2em] uppercase hover:border-paper focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-paper"
+    >
+      Coba lagi
+    </button>
+  );
   return (
     <fieldset aria-busy={loading || undefined}>
       <legend className="display mb-4 text-xl">3. Pengiriman</legend>
       {loading ? (
         <p className="text-sm text-muted">Menghitung ongkir…</p>
       ) : error ? (
-        <p role="alert" className="text-sm">
-          {error}
-        </p>
+        <div>
+          <p role="alert" className="text-sm">
+            {error}
+          </p>
+          {retry}
+        </div>
       ) : options.length === 0 ? (
-        <p className="text-sm text-muted">{emptyHint}</p>
+        <div>
+          <p className="text-sm text-muted">{emptyHint}</p>
+          {retry}
+        </div>
       ) : (
         <>
           {fallback && <p className="mb-3 text-xs text-muted">Tarif kurir sedang tidak tersedia, jadi dipakai tarif standar toko.</p>}

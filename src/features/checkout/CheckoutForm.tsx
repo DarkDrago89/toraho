@@ -11,6 +11,7 @@ import { placeOrder, quoteShippingOptions, type QuoteResult } from "./actions";
 import { CourierOptions } from "./CourierOptions";
 import type { CheckoutDefaults } from "./defaults";
 import { DestinationSearch } from "./DestinationSearch";
+import { isShippingStale, USE_SEARCH_ERROR } from "./messages";
 import type { PaymentMethod } from "./service";
 import { choiceCls, Field, inputCls } from "./ui";
 
@@ -39,6 +40,8 @@ export function CheckoutForm({
   const [quote, setQuote] = useState<QuoteResult | null>(null);
   const [quoting, setQuoting] = useState(false);
   const [shippingId, setShippingId] = useState<string | null>(null);
+  // Dinaikkan untuk memaksa hitung ulang ongkir (setelah "Ongkir berubah" / "Gagal menghitung" / Coba lagi).
+  const [quoteNonce, setQuoteNonce] = useState(0);
   const [method, setMethod] = useState<PaymentMethod>(midtransReady ? "MIDTRANS" : "MANUAL");
   const [errors, setErrors] = useState<string[]>([]);
   const [pending, start] = useTransition();
@@ -68,6 +71,12 @@ export function CheckoutForm({
     })
       .then((q) => {
         if (!alive) return;
+        // Server menolak isian manual karena pencarian alamat sudah normal lagi → tampilkan pencarian.
+        if (q.useSearch) {
+          setManual(false);
+          setQuote(null);
+          return;
+        }
         setQuote(q);
         // Pertahankan pilihan jika masih ada; jika tidak, pilih yang termurah.
         setShippingId((cur) => (cur && q.options.some((o) => o.id === cur) ? cur : (q.options[0]?.id ?? null)));
@@ -78,7 +87,7 @@ export function CheckoutForm({
       alive = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `target` + `key` mewakili tujuan dan isi tas
-  }, [target, key, cart.ready]);
+  }, [target, key, cart.ready, quoteNonce]);
 
   // Kesalahan saat kirim: pindahkan fokus ke ringkasan agar langsung terbaca (juga oleh pembaca layar).
   useEffect(() => {
@@ -144,8 +153,10 @@ export function CheckoutForm({
       });
       if (!r.ok) {
         setErrors(r.errors);
-        // Ongkir berubah → muat ulang pilihan pengiriman.
-        if (r.errors.some((e) => /ongkir/i.test(e))) setQuote(null);
+        // Ongkir berubah / gagal dihitung → hitung ulang pilihan pengiriman (biasanya tampil tarif terbaru).
+        if (r.errors.some(isShippingStale)) setQuoteNonce((n) => n + 1);
+        // Isian manual ditolak karena pencarian sudah normal → kembali ke pencarian alamat.
+        if (r.errors.includes(USE_SEARCH_ERROR)) setManual(false);
         return;
       }
       cart.clear();
@@ -166,7 +177,15 @@ export function CheckoutForm({
         : "Buat Pesanan";
 
   return (
-    <form action={submit} className="mt-10 grid gap-10 md:grid-cols-[1fr_340px]">
+    <form
+      // onSubmit (bukan `action={fn}`): React 19 mengosongkan isian form setelah form action selesai, sehingga
+      // pembeli harus mengetik ulang semuanya setiap kali pesanan ditolak (mis. "Ongkir berubah").
+      onSubmit={(e) => {
+        e.preventDefault();
+        submit(new FormData(e.currentTarget));
+      }}
+      className="mt-10 grid gap-10 md:grid-cols-[1fr_340px]"
+    >
       <div className="space-y-10">
         {errors.length > 0 && (
           <div ref={errorRef} tabIndex={-1} aria-labelledby="checkout-errors" className="border border-paper p-4 text-sm focus:outline-none">
@@ -276,6 +295,7 @@ export function CheckoutForm({
           loading={quoting}
           fallback={!!quote?.fallback && shippingMode === "kurir"}
           error={quote?.error}
+          onRetry={target ? () => setQuoteNonce((n) => n + 1) : undefined}
           emptyHint={
             target
               ? manual
