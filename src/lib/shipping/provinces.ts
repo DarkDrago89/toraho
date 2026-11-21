@@ -52,3 +52,41 @@ export function provinceName(code: string): string {
 export function isProvinceCode(code: string): code is ProvinceCode {
   return PROVINCES.some((p) => p.code === code);
 }
+
+/** Huruf besar, tanpa isi kurung, tanpa tanda baca: "Kep. Bangka Belitung" → "KEP BANGKA BELITUNG". */
+const normalizeName = (s: string) =>
+  s
+    .toUpperCase()
+    .replace(/\(.*?\)/g, " ")
+    .replace(/[^A-Z ]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+/** Ejaan lain yang dipakai API kurir (setelah dinormalisasi). */
+const ALIASES: Record<string, ProvinceCode> = {
+  "DAERAH ISTIMEWA YOGYAKARTA": "YO",
+  "D I YOGYAKARTA": "YO",
+  DIY: "YO",
+  YOGYAKARTA: "YO",
+  JAKARTA: "JK",
+  "D K I JAKARTA": "JK",
+  "DAERAH KHUSUS IBUKOTA JAKARTA": "JK",
+  "DAERAH KHUSUS JAKARTA": "JK",
+  "NANGGROE ACEH DARUSSALAM": "AC",
+  NAD: "AC",
+  "BANGKA BELITUNG": "BB",
+  "KEP BANGKA BELITUNG": "BB",
+  "KEP RIAU": "KR",
+  NTB: "NB",
+  NTT: "NT",
+};
+
+const BY_NAME = new Map<string, ProvinceCode>([
+  ...PROVINCES.map((p) => [normalizeName(p.name), p.code] as const),
+  ...Object.entries(ALIASES),
+]);
+
+/** Nama provinsi dari API kurir → kode provinsi toko. null jika tidak dikenali. */
+export function provinceCodeFromName(name: string): ProvinceCode | null {
+  return BY_NAME.get(normalizeName(name)) ?? null;
+}

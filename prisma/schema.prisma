@@ -197,6 +197,15 @@ model ShippingRate {
   cost         Int
 }
 
+/// Cache respons API luar (RajaOngkir). Di database agar semua instance server berbagi cache yang sama.
+model ApiCache {
+  key       String   @id
+  value     Json
+  expiresAt DateTime
+
+  @@index([expiresAt])
+}
+
 model Setting {
   key   String @id
   value Json
