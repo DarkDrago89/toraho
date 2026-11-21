@@ -3,6 +3,7 @@ import { canTransition, type OrderStatus } from "@/lib/domain/order-status";
 import { normalizePhone } from "@/lib/domain/phone";
 import { extFor, getStorage, validateImageUpload } from "@/lib/storage";
 import type { FileStorage, UploadFile } from "@/lib/storage/types";
+import { releaseStock } from "./stock";
 
 export type BuyerOrderView = {
   id: string;
@@ -33,6 +34,9 @@ export type BuyerOrderView = {
 export async function getOrderForBuyer(code: string, phone: string): Promise<BuyerOrderView | null> {
   const p = normalizePhone(phone);
   if (!p) return null;
+  // Lazy expire: pembeli langsung melihat status benar walau cron belum berjalan.
+  const found = await prisma.order.findUnique({ where: { code: code.trim().toUpperCase() }, select: { id: true, phone: true } });
+  if (found && found.phone === p) await expireStaleOrders(new Date(), found.id);
   const o = await prisma.order.findUnique({
     where: { code: code.trim().toUpperCase() },
     include: { items: true, _count: { select: { proofs: true } } },
@@ -62,6 +66,32 @@ export async function getOrderForBuyer(code: string, phone: string): Promise<Buy
     items: o.items.map((i) => ({ productName: i.productName, variantLabel: i.variantLabel, price: i.price, qty: i.qty })),
     proofCount: o._count.proofs,
   };
+}
+
+/**
+ * Pesanan MENUNGGU_BAYAR yang lewat batas waktu → KEDALUWARSA + stok dikembalikan.
+ * MENUNGGU_VERIFIKASI (bukti sudah diunggah) sengaja tidak disentuh: menunggu keputusan admin.
+ * Aman dijalankan berulang/bersamaan: status dicek ulang di WHERE dan stok dilepas lewat flag stockHeld.
+ */
+export async function expireStaleOrders(now = new Date(), onlyOrderId?: string): Promise<number> {
+  const stale = await prisma.order.findMany({
+    where: { status: "MENUNGGU_BAYAR", paymentDeadline: { lt: now }, ...(onlyOrderId ? { id: onlyOrderId } : {}) },
+    select: { id: true },
+  });
+  let count = 0;
+  for (const { id } of stale) {
+    const changed = await prisma.$transaction(async (tx) => {
+      const moved = await tx.order.updateMany({
+        where: { id, status: "MENUNGGU_BAYAR", paymentDeadline: { lt: now } },
+        data: { status: "KEDALUWARSA" },
+      });
+      if (moved.count === 0) return false;
+      await releaseStock(tx, id);
+      return true;
+    });
+    if (changed) count++;
+  }
+  return count;
 }
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
