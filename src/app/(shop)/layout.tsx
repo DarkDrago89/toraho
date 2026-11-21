@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { Wordmark } from "@/components/brand/Logo";
+import { CartBadge } from "@/features/cart/CartBadge";
+import { CartProvider } from "@/features/cart/CartProvider";
 
 const NAV = [
   { href: "/katalog?kategori=jaket", label: "Jaket" },
@@ -9,6 +11,7 @@ const NAV = [
 
 export default function ShopLayout({ children }: { children: React.ReactNode }) {
   return (
+    <CartProvider>
     <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-40 border-b border-line bg-ink/90 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
@@ -22,9 +25,7 @@ export default function ShopLayout({ children }: { children: React.ReactNode }) 
               </Link>
             ))}
           </nav>
-          <Link href="/keranjang" className="text-xs tracking-[0.25em] uppercase">
-            Tas
-          </Link>
+          <CartBadge />
         </div>
         <nav aria-label="Kategori" className="flex justify-center gap-6 border-t border-line py-2 text-[0.7rem] tracking-[0.25em] uppercase sm:hidden">
           {NAV.map((n) => (
@@ -70,5 +71,6 @@ export default function ShopLayout({ children }: { children: React.ReactNode }) 
         </p>
       </footer>
     </div>
+    </CartProvider>
   );
 }
