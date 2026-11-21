@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getOrderForBuyer } from "@/features/orders/service";
+import { auth } from "@/auth";
+import { getOrderForBuyer, getOrderForCustomer, linkGuestOrder } from "@/features/orders/service";
 import { payNowAction } from "@/features/orders/actions";
 import { getSettings } from "@/features/settings/service";
 import { StatusStepper } from "@/features/orders/buyer/StatusStepper";
@@ -19,7 +20,14 @@ type Props = { params: Promise<{ code: string }>; searchParams: Promise<{ hp?: s
 export default async function OrderStatusPage({ params, searchParams }: Props) {
   const { code } = await params;
   const { hp = "", gagal } = await searchParams;
-  const [order, settings] = await Promise.all([getOrderForBuyer(code, hp), getSettings()]);
+  const [session, settings] = await Promise.all([auth(), getSettings()]);
+  const customerId = session?.user?.role === "customer" ? session.user.id : null;
+
+  // Akses: kode + nomor HP (siapa pun), atau sesi pembeli pemilik pesanan.
+  let order = hp ? await getOrderForBuyer(code, hp) : null;
+  // Pesanan tamu dengan email yang sama → dihubungkan ke akun setelah nomor HP terbukti cocok.
+  const justLinked = !!order && !!customerId && (await linkGuestOrder(code, hp, customerId));
+  if (!order && customerId) order = await getOrderForCustomer(code, customerId);
 
   if (!order) {
     return (
@@ -46,6 +54,15 @@ export default async function OrderStatusPage({ params, searchParams }: Props) {
       <p className="mt-2 text-sm text-muted">
         Status: <span className="text-paper">{STATUS_LABEL[order.status]}</span>
       </p>
+      {justLinked && (
+        <p role="status" className="mt-4 border border-line p-3 text-sm">
+          Pesanan ini sekarang tersimpan di{" "}
+          <Link href="/akun" className="underline underline-offset-4">
+            akunmu
+          </Link>
+          .
+        </p>
+      )}
 
       <div className="mt-8">
         <StatusStepper status={order.status} />

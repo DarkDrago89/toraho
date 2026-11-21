@@ -24,6 +24,8 @@ export type CheckoutInput = {
   postalCode: string;
   addressLine: string;
   paymentMethod: PaymentMethod;
+  /** Id opsi ongkir yang dipilih pembeli (mis. "standar" atau "jne:REG"). */
+  shippingOptionId?: string;
 };
 
 export type CreatedOrder = { id: string; code: string; total: number; paymentMethod: PaymentMethod; phone: string };
@@ -66,7 +68,8 @@ function mergeLines(lines: CartLine[]): CartLine[] {
  * Membuat pesanan dari keranjang. Harga, berat, dan ketersediaan selalu diambil dari database.
  * Stok ditahan di transaksi yang sama, jadi pesanan gagal tidak pernah meninggalkan stok terpotong.
  */
-export async function createOrder(raw: CheckoutInput, now = new Date()): Promise<CreateOrderResult> {
+/** `customerId` diisi server dari sesi login Google, tidak pernah dari isian klien. */
+export async function createOrder(raw: CheckoutInput, now = new Date(), customerId: string | null = null): Promise<CreateOrderResult> {
   const parsed = schema.safeParse(raw);
   if (!parsed.success) return { ok: false, errors: [...new Set(parsed.error.issues.map((i) => i.message))] };
   const data = parsed.data;
@@ -126,6 +129,7 @@ export async function createOrder(raw: CheckoutInput, now = new Date()): Promise
         return tx.order.create({
           data: {
             code: generateOrderCode(now),
+            customerId,
             paymentMethod: data.paymentMethod,
             customerName: data.customerName,
             phone: data.phone,

@@ -7,6 +7,7 @@ import { getCartView, type CartViewItem } from "@/features/cart/actions";
 import { useCart } from "@/features/cart/CartProvider";
 import { formatRupiah } from "@/lib/format";
 import { placeOrder, quoteShipping } from "./actions";
+import type { CheckoutDefaults } from "./defaults";
 import type { PaymentMethod } from "./service";
 
 type Province = { code: string; name: string };
@@ -24,7 +25,16 @@ function Field({ label, children, hint }: { label: string; children: React.React
   );
 }
 
-export function CheckoutForm({ provinces, midtransReady }: { provinces: Province[]; midtransReady: boolean }) {
+export function CheckoutForm({
+  provinces,
+  midtransReady,
+  defaults,
+}: {
+  provinces: Province[];
+  midtransReady: boolean;
+  /** Isian awal untuk pembeli yang login (null = tamu). */
+  defaults: CheckoutDefaults | null;
+}) {
   const cart = useCart();
   const router = useRouter();
   const [items, setItems] = useState<CartViewItem[] | null>(null);
@@ -109,14 +119,14 @@ export function CheckoutForm({ provinces, midtransReady }: { provinces: Province
         <fieldset className="space-y-4">
           <legend className="display mb-4 text-xl">1. Kontak</legend>
           <Field label="Nama lengkap">
-            <input name="customerName" required autoComplete="name" className={inputCls} />
+            <input name="customerName" required autoComplete="name" defaultValue={defaults?.customerName} className={inputCls} />
           </Field>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="No. HP / WhatsApp" hint="Dipakai untuk melacak pesanan.">
-              <input name="phone" required inputMode="tel" autoComplete="tel" placeholder="08…" className={inputCls} />
+              <input name="phone" type="tel" required autoComplete="tel" placeholder="08…" defaultValue={defaults?.phone} className={inputCls} />
             </Field>
             <Field label="Email (opsional)">
-              <input name="email" type="email" autoComplete="email" className={inputCls} />
+              <input name="email" type="email" autoComplete="email" defaultValue={defaults?.email} className={inputCls} />
             </Field>
           </div>
         </fieldset>
@@ -145,7 +155,7 @@ export function CheckoutForm({ provinces, midtransReady }: { provinces: Province
             <input name="postalCode" required inputMode="numeric" pattern="\d{5}" maxLength={5} autoComplete="postal-code" className={`${inputCls} sm:max-w-40`} />
           </Field>
           <Field label="Alamat lengkap">
-            <textarea name="addressLine" required rows={3} autoComplete="street-address" placeholder="Jalan, nomor rumah, RT/RW, patokan" className={inputCls} />
+            <textarea name="addressLine" required rows={3} autoComplete="street-address" placeholder="Jalan, nomor rumah, RT/RW, patokan" defaultValue={defaults?.addressLine} className={inputCls} />
           </Field>
         </fieldset>
 

@@ -1,3 +1,4 @@
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { canTransition, type OrderStatus } from "@/lib/domain/order-status";
 import { normalizePhone } from "@/lib/domain/phone";
@@ -14,11 +15,15 @@ export type BuyerOrderView = {
   phone: string;
   addressLine: string;
   district: string;
+  subdistrict: string | null;
   city: string;
   provinceCode: string;
   postalCode: string;
   subtotal: number;
   shippingCost: number;
+  courierCode: string | null;
+  courierService: string | null;
+  shippingEtd: string | null;
   total: number;
   paymentDeadline: Date;
   trackingNumber: string | null;
@@ -30,18 +35,75 @@ export type BuyerOrderView = {
   proofCount: number;
 };
 
+const normCode = (code: string) => code.trim().toUpperCase();
+
 /** Pesanan untuk halaman status pembeli. Kode + nomor HP harus cocok (pengganti login). */
 export async function getOrderForBuyer(code: string, phone: string): Promise<BuyerOrderView | null> {
   const p = normalizePhone(phone);
   if (!p) return null;
+  return loadBuyerOrder({ code: normCode(code), phone: p });
+}
+
+/** Pesanan milik akun pembeli (sudah terhubung lewat customerId). Tidak butuh nomor HP. */
+export async function getOrderForCustomer(code: string, customerId: string): Promise<BuyerOrderView | null> {
+  return loadBuyerOrder({ code: normCode(code), customerId });
+}
+
+/**
+ * Pesanan yang tampil di halaman Akun: milik akun, atau pesanan tamu (belum terhubung) yang emailnya
+ * sama dengan email Google pembeli. Pesanan tamu hanya tampil ringkas, karena email checkout tidak diverifikasi.
+ */
+export function ownedOrderWhere(c: { id: string; email: string }): Prisma.OrderWhereInput {
+  return { OR: [{ customerId: c.id }, { customerId: null, email: { equals: c.email, mode: "insensitive" } }] };
+}
+
+export type CustomerOrderRow = { code: string; createdAt: Date; status: OrderStatus; total: number; itemCount: number; linked: boolean };
+
+export async function listCustomerOrders(customerId: string): Promise<CustomerOrderRow[]> {
+  const c = await prisma.customer.findUnique({ where: { id: customerId }, select: { id: true, email: true } });
+  if (!c) return [];
+  await expireStaleOrders(new Date());
+  const rows = await prisma.order.findMany({
+    where: ownedOrderWhere(c),
+    orderBy: { createdAt: "desc" },
+    take: 100,
+    select: { code: true, createdAt: true, status: true, total: true, customerId: true, items: { select: { qty: true } } },
+  });
+  return rows.map((r) => ({
+    code: r.code,
+    createdAt: r.createdAt,
+    status: r.status,
+    total: r.total,
+    itemCount: r.items.reduce((n, i) => n + i.qty, 0),
+    linked: r.customerId === c.id,
+  }));
+}
+
+/**
+ * Menghubungkan pesanan tamu ke akun setelah pembeli membuktikan nomor HP-nya. Hanya untuk pesanan yang
+ * belum terhubung dan emailnya sama dengan email Google pembeli. true = baru saja dihubungkan.
+ */
+export async function linkGuestOrder(code: string, phone: string, customerId: string): Promise<boolean> {
+  const p = normalizePhone(phone);
+  const c = await prisma.customer.findUnique({ where: { id: customerId }, select: { email: true } });
+  if (!p || !c) return false;
+  const r = await prisma.order.updateMany({
+    where: { code: normCode(code), phone: p, customerId: null, email: { equals: c.email, mode: "insensitive" } },
+    data: { customerId },
+  });
+  return r.count === 1;
+}
+
+async function loadBuyerOrder(where: Prisma.OrderWhereInput): Promise<BuyerOrderView | null> {
+  const found = await prisma.order.findFirst({ where, select: { id: true } });
+  if (!found) return null;
   // Lazy expire: pembeli langsung melihat status benar walau cron belum berjalan.
-  const found = await prisma.order.findUnique({ where: { code: code.trim().toUpperCase() }, select: { id: true, phone: true } });
-  if (found && found.phone === p) await expireStaleOrders(new Date(), found.id);
+  await expireStaleOrders(new Date(), found.id);
   const o = await prisma.order.findUnique({
-    where: { code: code.trim().toUpperCase() },
+    where: { id: found.id },
     include: { items: true, _count: { select: { proofs: true } } },
   });
-  if (!o || o.phone !== p) return null;
+  if (!o) return null;
   return {
     id: o.id,
     code: o.code,
@@ -51,11 +113,15 @@ export async function getOrderForBuyer(code: string, phone: string): Promise<Buy
     phone: o.phone,
     addressLine: o.addressLine,
     district: o.district,
+    subdistrict: o.subdistrict,
     city: o.city,
     provinceCode: o.provinceCode,
     postalCode: o.postalCode,
     subtotal: o.subtotal,
     shippingCost: o.shippingCost,
+    courierCode: o.courierCode,
+    courierService: o.courierService,
+    shippingEtd: o.shippingEtd,
     total: o.total,
     paymentDeadline: o.paymentDeadline,
     trackingNumber: o.trackingNumber,

@@ -1,5 +1,6 @@
 "use server";
 
+import { auth } from "@/auth";
 import { getShippingProvider } from "@/lib/shipping";
 import { createOrder, type CheckoutInput } from "./service";
 import { startPayment } from "@/features/payments/start";
@@ -18,7 +19,10 @@ export type PlaceOrderResult =
 
 /** Buat pesanan, lalu (untuk Midtrans) siapkan transaksi Snap. */
 export async function placeOrder(input: CheckoutInput): Promise<PlaceOrderResult> {
-  const r = await createOrder(input);
+  // Pemilik pesanan diambil dari sesi di server, tidak pernah dari data yang dikirim browser.
+  const session = await auth();
+  const customerId = session?.user?.role === "customer" ? session.user.id : null;
+  const r = await createOrder(input, new Date(), customerId);
   if (!r.ok) return r;
   const redirectUrl = r.order.paymentMethod === "MIDTRANS" ? await startPayment(r.order.id) : null;
   return { ok: true, code: r.order.code, phone: r.order.phone, redirectUrl };
