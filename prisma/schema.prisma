@@ -89,40 +89,66 @@ enum PaymentMethod {
 }
 
 model Order {
-  id                  String         @id @default(cuid())
-  code                String         @unique
-  status              OrderStatus    @default(MENUNGGU_BAYAR)
-  paymentMethod       PaymentMethod
-  customerName        String
-  phone               String
-  email               String?
-  provinceCode        String
-  city                String
-  district            String
-  postalCode          String
-  addressLine         String
-  subtotal            Int
-  shippingCost        Int
-  total               Int
-  weightGrams         Int
-  paymentDeadline     DateTime
+  id                    String         @id @default(cuid())
+  code                  String         @unique
+  status                OrderStatus    @default(MENUNGGU_BAYAR)
+  paymentMethod         PaymentMethod
+  customerName          String
+  phone                 String
+  email                 String?
+  /// Pembeli yang login dengan Google saat checkout. Kosong untuk checkout tanpa akun.
+  customerId            String?
+  customer              Customer?      @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  provinceCode          String
+  city                  String
+  district              String
+  /// Kelurahan/desa dari RajaOngkir. Kosong untuk pesanan mode tarif tetap.
+  subdistrict           String?
+  postalCode            String
+  addressLine           String
+  subtotal              Int
+  shippingCost          Int
+  /// Id tujuan RajaOngkir (dipakai menghitung ulang ongkir).
+  shippingDestinationId String?
+  /// Kode kurir (jne/jnt/sicepat) atau "standar" untuk tarif tetap provinsi.
+  courierCode           String?
+  courierService        String?
+  shippingEtd           String?
+  total                 Int
+  weightGrams           Int
+  paymentDeadline       DateTime
   /// true = stok item pesanan ini sedang dikurangi dari Variant. Dipakai agar stok tidak dikembalikan dua kali.
-  stockHeld           Boolean        @default(true)
-  trackingNumber      String?
-  adminNote           String?
-  rejectReason        String?
-  refunded            Boolean        @default(false)
-  midtransToken       String?
-  midtransRedirectUrl String?
-  paidAt              DateTime?
-  createdAt           DateTime       @default(now())
-  updatedAt           DateTime       @updatedAt
-  items               OrderItem[]
-  proofs              PaymentProof[]
-  paymentEvents       PaymentEvent[]
+  stockHeld             Boolean        @default(true)
+  trackingNumber        String?
+  adminNote             String?
+  rejectReason          String?
+  refunded              Boolean        @default(false)
+  midtransToken         String?
+  midtransRedirectUrl   String?
+  paidAt                DateTime?
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+  items                 OrderItem[]
+  proofs                PaymentProof[]
+  paymentEvents         PaymentEvent[]
 
   @@index([status])
   @@index([paidAt])
+  @@index([customerId])
+}
+
+/// Pembeli yang login dengan Google. Hanya dipakai untuk riwayat pesanan; checkout tanpa akun tetap bisa.
+model Customer {
+  id        String   @id @default(cuid())
+  /// `sub` dari Google: id akun yang tidak berubah walau email diganti.
+  googleSub String   @unique
+  /// Selalu huruf kecil, sudah diverifikasi Google.
+  email     String   @unique
+  name      String
+  image     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  orders    Order[]
 }
 
 model OrderItem {

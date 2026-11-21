@@ -2,6 +2,8 @@ import Link from "next/link";
 import { Wordmark } from "@/components/brand/Logo";
 import { CartBadge } from "@/features/cart/CartBadge";
 import { CartProvider } from "@/features/cart/CartProvider";
+import { AccountLink } from "@/features/customer-auth/AccountLink";
+import { isGoogleLoginEnabled } from "@/features/customer-auth/config";
 import { listVisibleCategories } from "@/features/catalog/service";
 import { getSettings } from "@/features/settings/service";
 import { toWaNumber } from "@/lib/domain/phone";
@@ -24,7 +26,10 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
               </Link>
             ))}
           </nav>
-          <CartBadge />
+          <div className="flex items-center gap-6">
+            <AccountLink loginEnabled={isGoogleLoginEnabled()} />
+            <CartBadge />
+          </div>
         </div>
         <nav aria-label="Kategori" className="flex justify-center gap-6 border-t border-line py-2 text-[0.7rem] tracking-[0.25em] uppercase sm:hidden">
           {NAV.map((n) => (

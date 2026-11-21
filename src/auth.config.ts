@@ -6,7 +6,8 @@ import { authorizeRequest } from "@/lib/auth/access";
  * Peran (admin/customer) diisi saat login di `src/auth.ts`; di sini hanya dibaca.
  */
 export const authConfig = {
-  pages: { signIn: "/admin/masuk" },
+  // signIn: tujuan saat area admin ditolak. error: kegagalan login Google (mis. AccessDenied).
+  pages: { signIn: "/admin/masuk", error: "/masuk" },
   session: { strategy: "jwt", maxAge: 7 * 24 * 3600 },
   providers: [],
   callbacks: {
