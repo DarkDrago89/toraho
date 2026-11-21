@@ -4,8 +4,11 @@ import { prisma } from "@/lib/db";
 import { generateOrderCode } from "@/lib/domain/order-code";
 import { normalizePhone } from "@/lib/domain/phone";
 import { computeTotals } from "@/lib/domain/totals";
-import { getShippingProvider } from "@/lib/shipping";
+import { getShippingOptions, STANDARD_OPTION_ID } from "@/lib/shipping";
+import { getRajaOngkirConfig } from "@/lib/shipping/config";
 import { isProvinceCode } from "@/lib/shipping/provinces";
+import { ShippingApiError } from "@/lib/shipping/rajaongkir";
+import type { ShippingDestination } from "@/lib/shipping/types";
 import { getSettings } from "@/features/settings/service";
 import { holdStock, isRetryableTxError, StockError } from "@/features/orders/stock";
 import { expireStaleOrders } from "@/features/orders/service";
@@ -25,7 +28,11 @@ export type CheckoutInput = {
   addressLine: string;
   paymentMethod: PaymentMethod;
   /** Id opsi ongkir yang dipilih pembeli (mis. "standar" atau "jne:REG"). */
-  shippingOptionId?: string;
+  shippingOptionId: string;
+  /** Id tujuan RajaOngkir dari hasil pencarian. Kosong = isian wilayah manual (tarif standar). */
+  destinationId?: string;
+  /** Ongkir yang dilihat pembeli; jika berbeda dari hitungan server, pesanan ditolak agar tidak salah tagih. */
+  expectedShippingCost?: number;
 };
 
 export type CreatedOrder = { id: string; code: string; total: number; paymentMethod: PaymentMethod; phone: string };
@@ -46,16 +53,71 @@ const schema = z.object({
     .optional()
     .transform((v) => (v ? v : undefined))
     .pipe(z.email("Email tidak valid").optional()),
-  provinceCode: z.string().refine(isProvinceCode, "Pilih provinsi"),
-  city: req("Kota/kabupaten wajib diisi").max(100),
-  district: req("Kecamatan wajib diisi").max(100),
-  postalCode: z.string().trim().regex(/^\d{5}$/, "Kode pos harus 5 angka"),
+  // Wilayah divalidasi terpisah (manualAddress): pada mode kurir datanya diambil dari server.
+  provinceCode: z.string().trim().max(10),
+  city: z.string().trim().max(100),
+  district: z.string().trim().max(100),
+  postalCode: z.string().trim().max(10),
+  destinationId: z
+    .string()
+    .trim()
+    .max(40)
+    .optional()
+    .transform((v) => v || undefined),
+  shippingOptionId: req("Pilih layanan pengiriman").max(60),
+  expectedShippingCost: z.number().int().nonnegative().optional(),
   addressLine: req("Alamat lengkap wajib diisi").max(300),
   paymentMethod: z.enum(["MIDTRANS", "MANUAL"], "Pilih metode pembayaran"),
   lines: z
     .array(z.object({ variantId: z.string(), qty: z.number().int().positive().max(99) }))
     .min(1, "Tas belanja kosong"),
 });
+
+/** Wilayah yang diketik pembeli (mode tarif standar / isian manual). */
+const manualAddress = z.object({
+  provinceCode: z.string().refine(isProvinceCode, "Pilih provinsi"),
+  city: req("Kota/kabupaten wajib diisi"),
+  district: req("Kecamatan wajib diisi"),
+  postalCode: z.string().trim().regex(/^\d{5}$/, "Kode pos harus 5 angka"),
+});
+
+type Destination = ShippingDestination & { subdistrict: string | null };
+
+/**
+ * Tujuan pengiriman. Mode kurir: data wilayah diambil dari RajaOngkir berdasarkan id (bukan dari isian
+ * browser), supaya alamat dan ongkir selalu cocok. Mode manual: isian pembeli.
+ */
+export async function resolveDestination(d: {
+  destinationId?: string;
+  provinceCode: string;
+  city: string;
+  district: string;
+  postalCode: string;
+}): Promise<{ ok: true; value: Destination } | { ok: false; error: string }> {
+  if (!d.destinationId) {
+    return { ok: true, value: { provinceCode: d.provinceCode, city: d.city, district: d.district, postalCode: d.postalCode, subdistrict: null } };
+  }
+  const config = await getRajaOngkirConfig();
+  if (!config) return { ok: false, error: "Pengiriman kurir sedang tidak tersedia, silakan muat ulang halaman" };
+  try {
+    const found = await config.client.lookupDestination(d.destinationId, d.postalCode);
+    if (!found) return { ok: false, error: "Alamat tujuan tidak valid, silakan pilih ulang" };
+    return {
+      ok: true,
+      value: {
+        destinationId: found.id,
+        provinceCode: found.provinceCode,
+        city: found.city,
+        district: found.district,
+        subdistrict: found.subdistrict || null,
+        postalCode: found.postalCode,
+      },
+    };
+  } catch (e) {
+    if (e instanceof ShippingApiError) return { ok: false, error: "Gagal menghitung ongkir, coba lagi" };
+    throw e;
+  }
+}
 
 /** Menggabungkan baris ganda varian yang sama agar pengecekan stok tidak bisa diakali. */
 function mergeLines(lines: CartLine[]): CartLine[] {
@@ -71,7 +133,10 @@ function mergeLines(lines: CartLine[]): CartLine[] {
 /** `customerId` diisi server dari sesi login Google, tidak pernah dari isian klien. */
 export async function createOrder(raw: CheckoutInput, now = new Date(), customerId: string | null = null): Promise<CreateOrderResult> {
   const parsed = schema.safeParse(raw);
-  if (!parsed.success) return { ok: false, errors: [...new Set(parsed.error.issues.map((i) => i.message))] };
+  // Isian wilayah manual dicek bersamaan agar semua kesalahan tampil sekaligus.
+  const address = raw.destinationId?.trim() ? null : manualAddress.safeParse(raw);
+  const issues = [...(parsed.success ? [] : parsed.error.issues), ...(address && !address.success ? address.error.issues : [])];
+  if (!parsed.success || issues.length) return { ok: false, errors: [...new Set(issues.map((i) => i.message))] };
   const data = parsed.data;
   const lines = mergeLines(data.lines);
 
@@ -106,13 +171,19 @@ export async function createOrder(raw: CheckoutInput, now = new Date(), customer
     };
   });
 
-  // 2. Ongkir.
+  // 2. Tujuan + ongkir. Dihitung ulang di server; pilihan pembeli harus ada dengan harga yang sama.
   const totalsNoShip = computeTotals(items, 0);
-  const shipping = await (await getShippingProvider()).quote({
-    destination: { provinceCode: data.provinceCode, city: data.city, district: data.district, postalCode: data.postalCode },
-    weightGrams: totalsNoShip.weightGrams,
-  });
-  if (!shipping) return { ok: false, errors: ["Pengiriman ke provinsi ini belum tersedia"] };
+  const dest = await resolveDestination(data);
+  if (!dest.ok) return { ok: false, errors: [dest.error] };
+  const { options, fallback } = await getShippingOptions({ destination: dest.value, weightGrams: totalsNoShip.weightGrams });
+  const shipping = options.find((o) => o.id === data.shippingOptionId);
+  if (!shipping || (data.expectedShippingCost !== undefined && data.expectedShippingCost !== shipping.cost)) {
+    let error = "Ongkir berubah, silakan pilih ulang layanan kurir";
+    // Pembeli memilih layanan kurir, tetapi RajaOngkir sekarang gagal → minta coba lagi.
+    if (fallback && data.shippingOptionId !== STANDARD_OPTION_ID) error = "Gagal menghitung ongkir, coba lagi";
+    else if (!options.length) error = dest.value.destinationId ? "Pengiriman ke tujuan ini belum tersedia" : "Pengiriman ke provinsi ini belum tersedia";
+    return { ok: false, errors: [error] };
+  }
   const totals = computeTotals(items, shipping.cost);
 
   const { paymentWindowHours } = await getSettings();
@@ -134,11 +205,16 @@ export async function createOrder(raw: CheckoutInput, now = new Date(), customer
             customerName: data.customerName,
             phone: data.phone,
             email: data.email ?? null,
-            provinceCode: data.provinceCode,
-            city: data.city,
-            district: data.district,
-            postalCode: data.postalCode,
+            provinceCode: dest.value.provinceCode,
+            city: dest.value.city,
+            district: dest.value.district,
+            subdistrict: dest.value.subdistrict,
+            postalCode: dest.value.postalCode,
             addressLine: data.addressLine,
+            shippingDestinationId: dest.value.destinationId ?? null,
+            courierCode: shipping.courier,
+            courierService: shipping.service,
+            shippingEtd: shipping.etd,
             ...totals,
             paymentDeadline,
             stockHeld: true,
@@ -158,4 +234,16 @@ export async function createOrder(raw: CheckoutInput, now = new Date(), customer
     }
   }
   return { ok: false, errors: ["Gagal membuat kode pesanan, coba lagi"] };
+}
+
+/** Berat total keranjang (gram) dari data produk di database, bukan dari browser. */
+export async function weightOfLines(lines: CartLine[]): Promise<number> {
+  const merged = mergeLines(lines.filter((l) => typeof l.variantId === "string" && Number.isInteger(l.qty) && l.qty > 0 && l.qty <= 99)).slice(0, 50);
+  if (!merged.length) return 0;
+  const variants = await prisma.variant.findMany({
+    where: { id: { in: merged.map((l) => l.variantId) } },
+    select: { id: true, product: { select: { weightGrams: true } } },
+  });
+  const w = new Map(variants.map((v) => [v.id, v.product.weightGrams]));
+  return merged.reduce((n, l) => n + (w.get(l.variantId) ?? 0) * l.qty, 0);
 }

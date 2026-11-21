@@ -1,6 +1,15 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
-import { getSettings, getShippingRates, saveSettings, saveShippingRates, setShippingRates, updateSettings } from "./service";
+import {
+  getSettings,
+  getShippingOrigin,
+  getShippingRates,
+  saveSettings,
+  saveShippingOrigin,
+  saveShippingRates,
+  setShippingRates,
+  updateSettings,
+} from "./service";
 
 beforeEach(async () => {
   await prisma.setting.deleteMany();
@@ -63,5 +72,23 @@ describe("tarif ongkir", () => {
     await setShippingRates({ JT: 18000 });
     await setShippingRates({ JB: 15000, JT: 0 });
     expect(await getShippingRates()).toEqual({ JB: 15000 });
+  });
+});
+
+describe("asal pengiriman (RajaOngkir)", () => {
+  it("kosong secara default; bisa disimpan lalu dihapus", async () => {
+    expect(await getShippingOrigin()).toBeNull();
+    expect(await saveShippingOrigin({ id: "100", label: "COBLONG, BANDUNG, JAWA BARAT, 40132" })).toEqual({ ok: true });
+    expect(await getShippingOrigin()).toEqual({ id: "100", label: "COBLONG, BANDUNG, JAWA BARAT, 40132" });
+    // Pengaturan toko lain tidak ikut berubah.
+    expect(await getSettings()).toEqual({ paymentWindowHours: 24, whatsapp: "", bankAccounts: [] });
+    expect(await saveShippingOrigin(null)).toEqual({ ok: true });
+    expect(await getShippingOrigin()).toBeNull();
+  });
+
+  it("id dan label wajib diisi", async () => {
+    expect(await saveShippingOrigin({ id: "", label: "x" })).toEqual({ ok: false, errors: ["Pilih kecamatan asal pengiriman dari hasil pencarian"] });
+    expect((await saveShippingOrigin({ id: "1", label: "  " })).ok).toBe(false);
+    expect((await saveShippingOrigin({ id: "1 OR 1=1", label: "x" })).ok).toBe(false);
   });
 });

@@ -77,6 +77,7 @@ export async function makeOrder(
       postalCode: "40132",
       addressLine: "Jl. Tes 1",
       paymentMethod: o.paymentMethod ?? "MIDTRANS",
+      shippingOptionId: "standar",
     },
     o.now ?? new Date(),
   );

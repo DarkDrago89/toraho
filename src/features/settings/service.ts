@@ -87,3 +87,29 @@ export async function setShippingRates(rates: Record<string, number>): Promise<v
     }),
   ]);
 }
+
+/** Asal pengiriman untuk RajaOngkir: id + label dari hasil pencarian tujuan. null = belum diatur. */
+export type ShippingOrigin = { id: string; label: string };
+
+const ORIGIN_KEY = "shippingOrigin";
+
+export async function getShippingOrigin(): Promise<ShippingOrigin | null> {
+  const row = await prisma.setting.findUnique({ where: { key: ORIGIN_KEY } });
+  const v = row?.value as Partial<ShippingOrigin> | null | undefined;
+  return v?.id && v.label ? { id: v.id, label: v.label } : null;
+}
+
+export async function saveShippingOrigin(origin: ShippingOrigin | null): Promise<SaveResult> {
+  if (origin === null) {
+    await prisma.setting.deleteMany({ where: { key: ORIGIN_KEY } });
+    return { ok: true };
+  }
+  const id = String(origin.id ?? "").trim();
+  const label = String(origin.label ?? "").trim();
+  if (!/^[A-Za-z0-9_-]{1,40}$/.test(id) || !label || label.length > 300) {
+    return { ok: false, errors: ["Pilih kecamatan asal pengiriman dari hasil pencarian"] };
+  }
+  const value = { id, label };
+  await prisma.setting.upsert({ where: { key: ORIGIN_KEY }, create: { key: ORIGIN_KEY, value }, update: { value } });
+  return { ok: true };
+}

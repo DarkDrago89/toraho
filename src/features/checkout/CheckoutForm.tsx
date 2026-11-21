@@ -6,7 +6,8 @@ import { useEffect, useState, useTransition } from "react";
 import { getCartView, type CartViewItem } from "@/features/cart/actions";
 import { useCart } from "@/features/cart/CartProvider";
 import { formatRupiah } from "@/lib/format";
-import { placeOrder, quoteShipping } from "./actions";
+import { placeOrder, quoteShippingOptions } from "./actions";
+import type { ShippingOption } from "@/lib/shipping/types";
 import type { CheckoutDefaults } from "./defaults";
 import type { PaymentMethod } from "./service";
 
@@ -39,7 +40,7 @@ export function CheckoutForm({
   const router = useRouter();
   const [items, setItems] = useState<CartViewItem[] | null>(null);
   const [province, setProvince] = useState("");
-  const [shipping, setShipping] = useState<{ cost: number; label: string } | null>(null);
+  const [shipping, setShipping] = useState<ShippingOption | null>(null);
   const [method, setMethod] = useState<PaymentMethod>(midtransReady ? "MIDTRANS" : "MANUAL");
   const [errors, setErrors] = useState<string[]>([]);
   const [pending, start] = useTransition();
@@ -55,11 +56,12 @@ export function CheckoutForm({
   useEffect(() => {
     if (!province) return setShipping(null);
     let alive = true;
-    quoteShipping(province, weight).then((q) => alive && setShipping(q));
+    quoteShippingOptions({ provinceCode: province, lines: cart.lines }).then((q) => alive && setShipping(q.options[0] ?? null));
     return () => {
       alive = false;
     };
-  }, [province, weight]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `key` mewakili isi cart.lines
+  }, [province, weight, key]);
 
   if (!cart.ready || items === null) return <p className="mt-10 text-muted">Memuat…</p>;
   if (items.length === 0) {
@@ -89,6 +91,8 @@ export function CheckoutForm({
         postalCode: String(form.get("postalCode") ?? ""),
         addressLine: String(form.get("addressLine") ?? ""),
         paymentMethod: method,
+        shippingOptionId: shipping?.id ?? "",
+        expectedShippingCost: shipping?.cost,
       });
       if (!r.ok) {
         setErrors(r.errors);

@@ -94,6 +94,33 @@ describe("searchDestinations", () => {
   });
 });
 
+describe("lookupDestination", () => {
+  it("menemukan tujuan dari hasil pencarian sebelumnya tanpa memanggil API lagi", async () => {
+    const f = fakeFetch({ status: 200, body: { meta: meta(200), data: [DEST] } });
+    const c = client(f.fn);
+    await c.searchDestinations("cibubur");
+    expect(await c.lookupDestination("31555", "13720")).toMatchObject({ id: "31555", subdistrict: "CIBUBUR", provinceCode: "JK" });
+    expect(f.calls).toHaveLength(1);
+  });
+
+  it("belum pernah dicari → dicari lewat kode pos; id tidak ada di hasil → null", async () => {
+    const f = fakeFetch(
+      { status: 200, body: { meta: meta(200), data: [DEST] } },
+      { status: 200, body: { meta: meta(200), data: [DEST] } },
+    );
+    const c = client(f.fn);
+    expect(await c.lookupDestination("31555", "13720")).toMatchObject({ id: "31555" });
+    expect(f.calls[0].url).toContain("search=13720&limit=50");
+    expect(await c.lookupDestination("99999", "13721")).toBeNull();
+  });
+
+  it("tanpa kode pos dan tidak ada di cache → null tanpa memanggil API", async () => {
+    const f = fakeFetch();
+    expect(await client(f.fn).lookupDestination("31555", "")).toBeNull();
+    expect(f.calls).toHaveLength(0);
+  });
+});
+
 describe("calculate", () => {
   const input = { origin: "1001", destination: "31555", weightGrams: 849.6, couriers: ["jne", "jnt", "sicepat"] };
 

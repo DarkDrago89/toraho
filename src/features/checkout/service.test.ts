@@ -18,6 +18,7 @@ function input(lines: CheckoutInput["lines"], over: Partial<CheckoutInput> = {})
     postalCode: "40132",
     addressLine: "Jl. Dago No. 1",
     paymentMethod: "MANUAL",
+    shippingOptionId: "standar",
     ...over,
   };
 }

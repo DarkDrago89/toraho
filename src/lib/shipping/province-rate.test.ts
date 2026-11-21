@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ProvinceRateProvider } from "./province-rate";
+import { ProvinceRateProvider, STANDARD_OPTION_ID } from "./province-rate";
 import { PROVINCES } from "./provinces";
 
 const dest = (provinceCode: string) => ({ provinceCode, city: "Bandung", district: "Coblong", postalCode: "40132" });
@@ -7,15 +7,14 @@ const dest = (provinceCode: string) => ({ provinceCode, city: "Bandung", distric
 describe("ProvinceRateProvider", () => {
   const provider = new ProvinceRateProvider({ JB: 15000 });
 
-  it("mengembalikan tarif tetap provinsi, tidak bergantung berat", async () => {
-    expect(await provider.quote({ destination: dest("JB"), weightGrams: 3000 })).toEqual({
-      cost: 15000,
-      label: "Tarif tetap Jawa Barat",
-    });
+  it("mengembalikan satu opsi tarif standar provinsi, tidak bergantung berat", async () => {
+    expect(await provider.quotes({ destination: dest("JB"), weightGrams: 3000 })).toEqual([
+      { id: STANDARD_OPTION_ID, courier: "standar", service: "Tarif standar", label: "Tarif standar Jawa Barat", description: "", cost: 15000, etd: null },
+    ]);
   });
 
-  it("mengembalikan null untuk provinsi tanpa tarif", async () => {
-    expect(await provider.quote({ destination: dest("PA"), weightGrams: 500 })).toBeNull();
+  it("provinsi tanpa tarif → tidak ada opsi", async () => {
+    expect(await provider.quotes({ destination: dest("PA"), weightGrams: 500 })).toEqual([]);
   });
 });
 

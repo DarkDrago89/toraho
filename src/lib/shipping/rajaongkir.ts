@@ -10,6 +10,9 @@ export const RAJAONGKIR_BASE_URL = "https://rajaongkir.komerce.id/api/v1";
 
 const SEARCH_TTL = 7 * 24 * 3600_000; // data wilayah jarang berubah
 const EMPTY_SEARCH_TTL = 24 * 3600_000;
+/** Tiap hasil pencarian juga disimpan per id, supaya server bisa memverifikasi tujuan pilihan pembeli. */
+const DEST_BY_ID_TTL = 30 * 24 * 3600_000;
+const destKey = (id: string) => `ro:destid:${id}`;
 const COST_TTL = 30 * 60_000;
 
 /** Gagal menghubungi RajaOngkir (jaringan, timeout, key salah, kuota habis, atau respons rusak). */
@@ -93,7 +96,7 @@ export function createRajaOngkirClient(opts: Options) {
   const fail = (status: number, json: Envelope<unknown>) =>
     new ShippingApiError(`RajaOngkir ${status}: ${json.meta?.message ?? "respons tidak valid"}`, status);
 
-  return {
+  const api = {
     /** Cari kelurahan/kecamatan/kota/kode pos. Hasil dengan provinsi yang tidak dikenali disaring. */
     async searchDestinations(query: string, limit = 10): Promise<DestinationView[]> {
       const q = query.trim();
@@ -127,7 +130,21 @@ export function createRajaOngkirClient(opts: Options) {
         });
       }
       await cache.set(key, result, result.length ? SEARCH_TTL : EMPTY_SEARCH_TTL);
+      for (const d of result) await cache.set(destKey(d.id), d, DEST_BY_ID_TTL);
       return result;
+    },
+
+    /**
+     * Data tujuan berdasarkan id, untuk verifikasi di server. Biasanya ada di cache dari pencarian pembeli
+     * sendiri; jika tidak, dicari ulang lewat kode pos. null = id tidak dikenali.
+     */
+    async lookupDestination(id: string, postalCodeHint: string): Promise<DestinationView | null> {
+      const hit = await cache.get<DestinationView>(destKey(id));
+      if (hit) return hit;
+      const zip = postalCodeHint.trim();
+      if (!/^\d{5}$/.test(zip)) return null;
+      const found = await api.searchDestinations(zip, 50);
+      return found.find((d) => d.id === id) ?? null;
     },
 
     /** Tarif semua layanan kurir dari asal ke tujuan (id hasil pencarian). [] = tidak ada layanan. */
@@ -164,6 +181,7 @@ export function createRajaOngkirClient(opts: Options) {
       return result;
     },
   };
+  return api;
 }
 
 export type RajaOngkirClient = ReturnType<typeof createRajaOngkirClient>;

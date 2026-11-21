@@ -1,16 +1,33 @@
 "use server";
 
 import { auth } from "@/auth";
-import { getShippingProvider } from "@/lib/shipping";
-import { createOrder, type CheckoutInput } from "./service";
+import { getShippingOptions, type ShippingOptionsResult } from "@/lib/shipping";
+import type { CartLine } from "@/features/cart/cart-store";
+import { createOrder, resolveDestination, weightOfLines, type CheckoutInput } from "./service";
 import { startPayment } from "@/features/payments/start";
 
-export async function quoteShipping(provinceCode: string, weightGrams: number) {
-  const q = await (await getShippingProvider()).quote({
-    destination: { provinceCode, city: "", district: "", postalCode: "" },
-    weightGrams,
+export type QuoteResult = ShippingOptionsResult & { error?: string };
+
+/**
+ * Pilihan pengiriman untuk layar checkout. Berat dihitung dari database; tujuan mode kurir diverifikasi
+ * di server. Hasilnya hanya untuk ditampilkan — createOrder menghitung ulang dengan aturan yang sama.
+ */
+export async function quoteShippingOptions(input: {
+  destinationId?: string;
+  postalCode?: string;
+  provinceCode?: string;
+  lines: CartLine[];
+}): Promise<QuoteResult> {
+  const dest = await resolveDestination({
+    destinationId: input.destinationId?.trim() || undefined,
+    provinceCode: String(input.provinceCode ?? ""),
+    city: "",
+    district: "",
+    postalCode: String(input.postalCode ?? ""),
   });
-  return q;
+  if (!dest.ok) return { options: [], fallback: true, error: dest.error };
+  const weightGrams = await weightOfLines(Array.isArray(input.lines) ? input.lines : []);
+  return getShippingOptions({ destination: dest.value, weightGrams });
 }
 
 export type PlaceOrderResult =

@@ -1,13 +1,25 @@
 import { provinceName } from "./provinces";
-import type { ShippingRateProvider, ShippingQuote, ShippingDestination } from "./types";
+import type { ShippingDestination, ShippingOption, ShippingRateProvider } from "./types";
 
-/** Tahap 1: satu tarif tetap per pesanan berdasarkan provinsi tujuan, tidak bergantung berat. */
+export const STANDARD_OPTION_ID = "standar";
+
+/** Tarif tetap per provinsi tujuan (diatur admin), tidak bergantung berat. Juga cadangan saat API kurir gagal. */
 export class ProvinceRateProvider implements ShippingRateProvider {
   constructor(private readonly rates: Record<string, number>) {}
 
-  async quote({ destination }: { destination: ShippingDestination; weightGrams: number }): Promise<ShippingQuote | null> {
+  async quotes({ destination }: { destination: ShippingDestination; weightGrams: number }): Promise<ShippingOption[]> {
     const cost = this.rates[destination.provinceCode];
-    if (cost === undefined || cost <= 0) return null;
-    return { cost, label: `Tarif tetap ${provinceName(destination.provinceCode)}` };
+    if (cost === undefined || cost <= 0) return [];
+    return [
+      {
+        id: STANDARD_OPTION_ID,
+        courier: "standar",
+        service: "Tarif standar",
+        label: `Tarif standar ${provinceName(destination.provinceCode)}`,
+        description: "",
+        cost,
+        etd: null,
+      },
+    ];
   }
 }

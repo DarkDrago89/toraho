@@ -26,6 +26,7 @@ const buyer = (lines: CheckoutInput["lines"]): CheckoutInput => ({
   postalCode: "40132",
   addressLine: "Jl. Tes",
   paymentMethod: "MANUAL",
+  shippingOptionId: "standar",
 });
 
 describe("I1: uang masuk untuk pesanan yang sudah batal harus tercatat", () => {
