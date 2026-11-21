@@ -3,10 +3,10 @@ import { prisma } from "@/lib/db";
 import { setShippingRates } from "@/features/settings/service";
 import { ShippingApiError } from "@/lib/shipping/rajaongkir";
 import { makeProduct } from "@/test/factory";
-import { createOrder, type CheckoutInput } from "./service";
+import { createOrder, resolveDestination, USE_SEARCH_ERROR, type CheckoutInput } from "./service";
 
 // RajaOngkir tiruan: createOrder harus menghitung ulang ongkir dan menentukan alamat dari data server.
-const ro = vi.hoisted(() => ({ calculate: vi.fn(), lookupDestination: vi.fn(), searchDestinations: vi.fn() }));
+const ro = vi.hoisted(() => ({ calculate: vi.fn(), lookupDestination: vi.fn(), searchDestinations: vi.fn(), recentlyFailed: vi.fn() }));
 vi.mock("@/lib/shipping/config", () => ({
   getRajaOngkirConfig: vi.fn(async () => ({ client: ro, origin: { id: "100", label: "Asal" }, couriers: ["jne", "jnt"] })),
 }));
@@ -46,7 +46,31 @@ async function input(over: Partial<CheckoutInput> = {}): Promise<CheckoutInput> 
 beforeEach(async () => {
   ro.calculate.mockReset().mockResolvedValue([REG]);
   ro.lookupDestination.mockReset().mockResolvedValue(DEST);
-  await setShippingRates({ JK: 20000 });
+  ro.recentlyFailed.mockReset().mockResolvedValue(false);
+  await setShippingRates({ JK: 20000, JB: 15000 });
+});
+
+describe("isian wilayah manual saat mode kurir aktif", () => {
+  const manual = { destinationId: undefined, provinceCode: "JB", city: "Bandung", district: "Coblong", postalCode: "40132" };
+
+  it("ditolak bila RajaOngkir sedang normal (tarif standar tidak bisa dipaksa dari browser)", async () => {
+    const r = await createOrder(await input({ ...manual, shippingOptionId: "standar", expectedShippingCost: 15000 }));
+    expect(r).toEqual({ ok: false, errors: [USE_SEARCH_ERROR] });
+    expect((await resolveDestination(manual)).ok).toBe(false);
+  });
+
+  it("diterima dengan tarif standar bila RajaOngkir baru saja gagal di server", async () => {
+    ro.recentlyFailed.mockResolvedValue(true);
+    const r = await createOrder(await input({ ...manual, shippingOptionId: "standar", expectedShippingCost: 15000 }));
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(await prisma.order.findUniqueOrThrow({ where: { id: r.order.id } })).toMatchObject({
+      courierCode: "standar",
+      shippingCost: 15000,
+      provinceCode: "JB",
+      shippingDestinationId: null,
+    });
+  });
 });
 
 describe("createOrder dengan ongkir kurir", () => {

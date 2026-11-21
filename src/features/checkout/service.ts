@@ -9,6 +9,7 @@ import { getRajaOngkirConfig } from "@/lib/shipping/config";
 import { isProvinceCode } from "@/lib/shipping/provinces";
 import { ShippingApiError } from "@/lib/shipping/rajaongkir";
 import type { ShippingDestination } from "@/lib/shipping/types";
+import { USE_SEARCH_ERROR } from "./messages";
 import { getSettings } from "@/features/settings/service";
 import { holdStock, isRetryableTxError, StockError } from "@/features/orders/stock";
 import { expireStaleOrders } from "@/features/orders/service";
@@ -84,9 +85,13 @@ const manualAddress = z.object({
 
 type Destination = ShippingDestination & { subdistrict: string | null };
 
+export { USE_SEARCH_ERROR };
+
 /**
  * Tujuan pengiriman. Mode kurir: data wilayah diambil dari RajaOngkir berdasarkan id (bukan dari isian
- * browser), supaya alamat dan ongkir selalu cocok. Mode manual: isian pembeli.
+ * browser), supaya alamat dan ongkir selalu cocok. Isian manual (tarif standar, mengabaikan berat) hanya
+ * diterima jika mode kurir tidak aktif, atau server sendiri baru saja melihat RajaOngkir gagal — supaya
+ * tarif standar tidak bisa dipaksa dengan sekadar tidak mengirim id tujuan.
  */
 export async function resolveDestination(d: {
   destinationId?: string;
@@ -95,10 +100,11 @@ export async function resolveDestination(d: {
   district: string;
   postalCode: string;
 }): Promise<{ ok: true; value: Destination } | { ok: false; error: string }> {
+  const config = await getRajaOngkirConfig();
   if (!d.destinationId) {
+    if (config && !(await config.client.recentlyFailed())) return { ok: false, error: USE_SEARCH_ERROR };
     return { ok: true, value: { provinceCode: d.provinceCode, city: d.city, district: d.district, postalCode: d.postalCode, subdistrict: null } };
   }
-  const config = await getRajaOngkirConfig();
   if (!config) return { ok: false, error: "Pengiriman kurir sedang tidak tersedia, silakan muat ulang halaman" };
   try {
     const found = await config.client.lookupDestination(d.destinationId, d.postalCode);

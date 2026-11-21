@@ -5,13 +5,14 @@ import { createRajaOngkirClient, ShippingApiError } from "./rajaongkir";
 type Call = { url: string; init?: RequestInit };
 
 /** fetch tiruan: mencatat panggilan dan mengembalikan respons yang disiapkan. */
-function fakeFetch(...responses: Array<{ status: number; body: unknown } | Error>) {
+function fakeFetch(...responses: Array<{ status: number; body: unknown } | Error | Response>) {
   const calls: Call[] = [];
   const fn = vi.fn(async (url: string | URL | Request, init?: RequestInit) => {
     calls.push({ url: String(url), init });
     const r = responses.shift();
     if (!r) throw new Error("tidak ada respons tersisa");
     if (r instanceof Error) throw r;
+    if (r instanceof Response) return r;
     return new Response(typeof r.body === "string" ? r.body : JSON.stringify(r.body), { status: r.status });
   });
   return { fn: fn as unknown as typeof fetch, calls };
@@ -91,6 +92,47 @@ describe("searchDestinations", () => {
       const f = fakeFetch(r);
       await expect(client(f.fn).searchDestinations("cibubur")).rejects.toBeInstanceOf(ShippingApiError);
     }
+  });
+});
+
+describe("respons rusak dan penanda gangguan", () => {
+  const brokenBody = () =>
+    new Response(
+      new ReadableStream({
+        start(c) {
+          c.error(new Error("connection reset"));
+        },
+      }),
+      { status: 200 },
+    );
+
+  it("koneksi putus saat isi respons dibaca → ShippingApiError (bukan error lain)", async () => {
+    await expect(client(fakeFetch(brokenBody()).fn).searchDestinations("cibubur")).rejects.toBeInstanceOf(ShippingApiError);
+    await expect(client(fakeFetch(brokenBody()).fn).calculate({ origin: "1", destination: "2", weightGrams: 100, couriers: ["jne"] })).rejects.toBeInstanceOf(
+      ShippingApiError,
+    );
+  });
+
+  it("isi JSON `null` atau bukan objek → ShippingApiError", async () => {
+    for (const body of ["null", "42", '"teks"']) {
+      await expect(client(fakeFetch({ status: 200, body }).fn).searchDestinations("cibubur")).rejects.toBeInstanceOf(ShippingApiError);
+    }
+  });
+
+  it("kegagalan menandai RajaOngkir sedang bermasalah selama 10 menit; hasil kosong (404) tidak", async () => {
+    let t = 0;
+    const f = fakeFetch(
+      { status: 404, body: { meta: meta(404), data: null } },
+      { status: 503, body: "down" },
+    );
+    const c = client(f.fn, () => t);
+    expect(await c.recentlyFailed()).toBe(false);
+    await c.searchDestinations("zzzz");
+    expect(await c.recentlyFailed()).toBe(false);
+    await expect(c.searchDestinations("cibubur")).rejects.toBeInstanceOf(ShippingApiError);
+    expect(await c.recentlyFailed()).toBe(true);
+    t = 10 * 60_000;
+    expect(await c.recentlyFailed()).toBe(false);
   });
 });
 

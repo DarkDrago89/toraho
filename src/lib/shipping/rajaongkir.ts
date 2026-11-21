@@ -13,6 +13,9 @@ const EMPTY_SEARCH_TTL = 24 * 3600_000;
 /** Tiap hasil pencarian juga disimpan per id, supaya server bisa memverifikasi tujuan pilihan pembeli. */
 const DEST_BY_ID_TTL = 30 * 24 * 3600_000;
 const destKey = (id: string) => `ro:destid:${id}`;
+/** Penanda "RajaOngkir baru saja gagal" di cache bersama. Selama ada, isian wilayah manual boleh dipakai. */
+const DOWN_KEY = "ro:down";
+const DOWN_TTL = 10 * 60_000;
 const COST_TTL = 30 * 60_000;
 
 /** Gagal menghubungi RajaOngkir (jaringan, timeout, key salah, kuota habis, atau respons rusak). */
@@ -70,33 +73,53 @@ export function createRajaOngkirClient(opts: Options) {
   const cache = opts.cache ?? dbCache();
   const timeoutMs = opts.timeoutMs ?? 8000;
 
-  /** Memanggil API dan mengembalikan [status, isi JSON]. Gagal jaringan / JSON rusak → ShippingApiError. */
+  /**
+   * Tandai RajaOngkir sedang bermasalah (dibaca server untuk mengizinkan isian wilayah manual + tarif standar).
+   * Kegagalan menulis penanda tidak boleh menutupi error aslinya.
+   */
+  async function failed(error: ShippingApiError): Promise<ShippingApiError> {
+    await cache.set(DOWN_KEY, true, DOWN_TTL).catch(() => {});
+    return error;
+  }
+
+  /** Memanggil API dan mengembalikan [status, isi JSON]. Jaringan/timeout/isi rusak → ShippingApiError. */
   async function call<T>(path: string, init: RequestInit): Promise<[number, Envelope<T>]> {
-    let res: Response;
+    let status = 0;
+    let text: string;
     try {
-      res = await fetchFn(`${base}${path}`, {
+      const res = await fetchFn(`${base}${path}`, {
         ...init,
         headers: { key: opts.apiKey, Accept: "application/json", ...init.headers },
         signal: AbortSignal.timeout(timeoutMs),
         cache: "no-store",
       });
+      status = res.status;
+      // Membaca isi juga di dalam try: timeout atau koneksi putus bisa terjadi di tahap ini.
+      text = await res.text();
     } catch (e) {
-      throw new ShippingApiError(`RajaOngkir tidak bisa dihubungi: ${e instanceof Error ? e.message : String(e)}`);
+      throw await failed(new ShippingApiError(`RajaOngkir tidak bisa dihubungi: ${e instanceof Error ? e.message : String(e)}`, status || undefined));
     }
-    const text = await res.text();
-    let json: Envelope<T>;
+    let json: unknown;
     try {
-      json = JSON.parse(text) as Envelope<T>;
+      json = JSON.parse(text);
     } catch {
-      throw new ShippingApiError(`RajaOngkir ${res.status}: respons bukan JSON`, res.status);
+      throw await failed(new ShippingApiError(`RajaOngkir ${status}: respons bukan JSON`, status));
     }
-    return [res.status, json];
+    if (!json || typeof json !== "object" || Array.isArray(json)) {
+      throw await failed(new ShippingApiError(`RajaOngkir ${status}: respons bukan objek JSON`, status));
+    }
+    return [status, json as Envelope<T>];
   }
 
   const fail = (status: number, json: Envelope<unknown>) =>
-    new ShippingApiError(`RajaOngkir ${status}: ${json.meta?.message ?? "respons tidak valid"}`, status);
+    failed(new ShippingApiError(`RajaOngkir ${status}: ${json.meta?.message ?? "respons tidak valid"}`, status));
 
   const api = {
+    /** true jika ada panggilan RajaOngkir yang gagal dalam 10 menit terakhir (di instance mana pun). */
+    async recentlyFailed(): Promise<boolean> {
+      return (await cache.get<boolean>(DOWN_KEY)) === true;
+    },
+
     /** Cari kelurahan/kecamatan/kota/kode pos. Hasil dengan provinsi yang tidak dikenali disaring. */
     async searchDestinations(query: string, limit = 10): Promise<DestinationView[]> {
       const q = query.trim();
@@ -109,7 +132,7 @@ export function createRajaOngkirClient(opts: Options) {
       let rows: RawDestination[] = [];
       if (status === 404) rows = [];
       else if (status >= 200 && status < 300) rows = Array.isArray(json.data) ? json.data : [];
-      else throw fail(status, json);
+      else throw await fail(status, json);
 
       const result: DestinationView[] = [];
       for (const d of rows) {
@@ -165,7 +188,7 @@ export function createRajaOngkirClient(opts: Options) {
       if (status >= 200 && status < 300) rows = Array.isArray(json.data) ? json.data : [];
       // "Calculate Domestic Shipping Cost not found": kurir tidak melayani rute ini.
       else if (status === 400 && /not found/i.test(json.meta?.message ?? "")) rows = [];
-      else throw fail(status, json);
+      else throw await fail(status, json);
 
       const result = rows
         .map((d) => ({

@@ -3,10 +3,15 @@
 import { auth } from "@/auth";
 import { getShippingOptions, type ShippingOptionsResult } from "@/lib/shipping";
 import type { CartLine } from "@/features/cart/cart-store";
+import { USE_SEARCH_ERROR } from "./messages";
 import { createOrder, resolveDestination, weightOfLines, type CheckoutInput } from "./service";
 import { startPayment } from "@/features/payments/start";
 
-export type QuoteResult = ShippingOptionsResult & { error?: string };
+export type QuoteResult = ShippingOptionsResult & {
+  error?: string;
+  /** Isian manual ditolak karena pencarian alamat sudah normal: tampilkan lagi kotak pencarian. */
+  useSearch?: boolean;
+};
 
 /**
  * Pilihan pengiriman untuk layar checkout. Berat dihitung dari database; tujuan mode kurir diverifikasi
@@ -25,7 +30,7 @@ export async function quoteShippingOptions(input: {
     district: "",
     postalCode: String(input.postalCode ?? ""),
   });
-  if (!dest.ok) return { options: [], fallback: true, error: dest.error };
+  if (!dest.ok) return { options: [], fallback: true, error: dest.error, useSearch: dest.error === USE_SEARCH_ERROR };
   const weightGrams = await weightOfLines(Array.isArray(input.lines) ? input.lines : []);
   return getShippingOptions({ destination: dest.value, weightGrams });
 }
