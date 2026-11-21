@@ -1,0 +1,745 @@
+<h2>Koleksi 01 · 虎火 — konsep v5 (hoodie &amp; jaket sesuai referensi)</h2>
+<p class="subtitle">Proporsi kaos kini mengikuti ukuran L asli (dada 54 cm, panjang 73 cm; skala 1 cm = 7 px). Area cetak sesuai standar sablon. Klik konsep yang kamu suka, lalu ceritakan di chat.</p>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@900&family=Archivo:wght@800;900&display=swap">
+<style>
+  .tz-sec { margin: 34px 0 10px; display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
+  .tz-sec h3 { margin:0; }
+  .tz-tag { font-size:11px; letter-spacing:.15em; text-transform:uppercase; border:1px solid currentColor; padding:2px 8px; opacity:.7; }
+  .tz-grid { grid-template-columns: 1fr !important; }
+  .tz-grid .card-image { background:#dcdcd8; padding:10px 6px 4px; }
+  .tz-grid svg { display:block; width:100%; height:auto; }
+  .tz-note { font-size:12px; opacity:.65; margin-top:6px; }
+  .jp { font-family: "Noto Serif JP", "Yu Mincho", "MS Mincho", serif; font-weight:900; }
+  .ar { font-family: Archivo, "Arial Black", Arial, sans-serif; font-weight:900; }
+  .lbl { font: 600 15px Arial, sans-serif; letter-spacing: .3em; fill:#555; }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- ===== Kain & detail ===== -->
+    <linearGradient id="fold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#000" stop-opacity=".35"/>
+      <stop offset=".12" stop-color="#fff" stop-opacity=".04"/>
+      <stop offset=".3" stop-color="#fff" stop-opacity="0"/>
+      <stop offset=".55" stop-color="#fff" stop-opacity=".035"/>
+      <stop offset=".8" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000" stop-opacity=".35"/>
+    </linearGradient>
+    <linearGradient id="foldV" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".05"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".25"/>
+    </linearGradient>
+    <linearGradient id="satin" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".13"/><stop offset=".35" stop-color="#fff" stop-opacity="0"/>
+      <stop offset=".55" stop-color="#fff" stop-opacity=".09"/><stop offset=".75" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".3"/>
+    </linearGradient>
+    <pattern id="rib" width="6" height="10" patternUnits="userSpaceOnUse"><rect width="6" height="10" fill="#161616"/><rect width="2.4" height="10" fill="#222"/></pattern>
+    <pattern id="dots" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="3.5" cy="3.5" r="2.4" fill="#f2f2f2"/></pattern>
+    <pattern id="seigaiha" width="40" height="20" patternUnits="userSpaceOnUse">
+      <g fill="#0d0d0d" stroke="#262626" stroke-width="1.6">
+        <g transform="translate(0,10)"><circle r="19"/><circle r="14"/><circle r="9"/><circle r="4"/></g>
+        <g transform="translate(40,10)"><circle r="19"/><circle r="14"/><circle r="9"/><circle r="4"/></g>
+        <g transform="translate(20,20)"><circle r="19"/><circle r="14"/><circle r="9"/><circle r="4"/></g>
+      </g>
+    </pattern>
+    <pattern id="seigaiha-ink" width="40" height="20" patternUnits="userSpaceOnUse">
+      <g fill="#111" stroke="#e8e8e8" stroke-width="1.8">
+        <g transform="translate(0,10)"><circle r="19"/><circle r="14"/><circle r="9"/></g>
+        <g transform="translate(40,10)"><circle r="19"/><circle r="14"/><circle r="9"/></g>
+        <g transform="translate(20,20)"><circle r="19"/><circle r="14"/><circle r="9"/></g>
+      </g>
+    </pattern>
+    <filter id="distress" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="1.3" numOctaves="2" seed="7" result="n"/>
+      <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -3 1.9" result="m"/>
+      <feComposite in="SourceGraphic" in2="m" operator="in"/>
+    </filter>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="125%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-opacity=".28"/></filter>
+
+    <!-- ===== Kaos regular (ukuran L) ===== -->
+    <path id="teeF-p" d="M183,12 Q250,80 317,12 L415,32 L535,116 L463,219 L439,190 L439,520 Q250,528 61,520 L61,190 L37,219 L-35,116 L85,32 Z"/>
+    <path id="teeB-p" d="M183,12 Q250,30 317,12 L415,32 L535,116 L463,219 L439,190 L439,520 Q250,528 61,520 L61,190 L37,219 L-35,116 L85,32 Z"/>
+    <g id="tee-detail" fill="none" stroke-linecap="round">
+      <path d="M85,32 Q68,110 61,190 M415,32 Q432,110 439,190" stroke="#1f1f1f" stroke-width="1.5"/>
+      <path d="M-27,110 L45,213 M527,110 L455,213" stroke="#2a2a2a" stroke-width="1.2" stroke-dasharray="4 3"/>
+      <path d="M61,510 Q250,518 439,510" stroke="#2a2a2a" stroke-width="1.2" stroke-dasharray="4 3"/>
+    </g>
+    <g id="teeFront" filter="url(#shadow)">
+      <use href="#teeF-p" fill="#0d0d0d"/><use href="#teeF-p" fill="url(#fold)"/><use href="#teeF-p" fill="url(#foldV)"/>
+      <use href="#tee-detail"/>
+      <path d="M183,12 Q250,80 317,12" fill="none" stroke="#1c1c1c" stroke-width="11"/>
+      <path d="M190,18 Q250,72 310,18" fill="none" stroke="#2c2c2c" stroke-width="1" stroke-dasharray="3 3"/>
+    </g>
+    <g id="teeBack" filter="url(#shadow)">
+      <use href="#teeB-p" fill="#0d0d0d"/><use href="#teeB-p" fill="url(#fold)"/><use href="#teeB-p" fill="url(#foldV)"/>
+      <use href="#tee-detail"/>
+      <path d="M183,12 Q250,30 317,12" fill="none" stroke="#1c1c1c" stroke-width="9"/>
+    </g>
+
+    <!-- ===== Kaos oversize (bahu jatuh, dada 63 cm) ===== -->
+    <path id="wideF-p" d="M180,12 Q250,74 320,12 L460,42 L580,120 L535,235 L470,215 L470,532 Q250,540 30,532 L30,215 L-35,235 L-80,120 L40,42 Z"/>
+    <path id="wideB-p" d="M180,12 Q250,28 320,12 L460,42 L580,120 L535,235 L470,215 L470,532 Q250,540 30,532 L30,215 L-35,235 L-80,120 L40,42 Z"/>
+    <g id="wide-detail" fill="none">
+      <path d="M40,42 Q36,130 30,215 M460,42 Q464,130 470,215" stroke="#1f1f1f" stroke-width="1.5"/>
+      <path d="M-70,113 L-26,226 M570,113 L526,226" stroke="#2a2a2a" stroke-width="1.2" stroke-dasharray="4 3"/>
+      <path d="M30,522 Q250,530 470,522" stroke="#2a2a2a" stroke-width="1.2" stroke-dasharray="4 3"/>
+    </g>
+    <g id="wideFront" filter="url(#shadow)">
+      <use href="#wideF-p" fill="#0d0d0d"/><use href="#wideF-p" fill="url(#fold)"/><use href="#wideF-p" fill="url(#foldV)"/>
+      <use href="#wide-detail"/><path d="M180,12 Q250,74 320,12" fill="none" stroke="#1c1c1c" stroke-width="13"/>
+    </g>
+    <g id="wideBack" filter="url(#shadow)">
+      <use href="#wideB-p" fill="#0d0d0d"/><use href="#wideB-p" fill="url(#fold)"/><use href="#wideB-p" fill="url(#foldV)"/>
+      <use href="#wide-detail"/><path d="M180,12 Q250,28 320,12" fill="none" stroke="#1c1c1c" stroke-width="10"/>
+    </g>
+
+    <!-- ===== Elemen grafis ===== -->
+    <path id="flame" d="M0,-94 C16,-80 15,-64 4,-56 C9,-66 3,-73 -2,-76 C2,-66 -6,-58 -10,-62 C-14,-70 -10,-84 0,-94 Z"/>
+    <path id="ring-tora" d="M250,214 m-86,0 a86,86 0 1,1 172,0 a86,86 0 1,1 -172,0"/>
+    <path id="ring-jk" d="M250,250 m-118,0 a118,118 0 1,1 236,0 a118,118 0 1,1 -236,0"/>
+  
+    
+    <!-- ===== Hoodie L (skala 7 px/cm): dada 58, panjang 70, bahu 50, lengan 62, manset 10, sudut lengan 18° ===== -->
+    <path id="hd-p" d="M180,40 Q250,100 320,40 L425,61 Q448,88 465,160 L544,427 L477,449 L453,243 L453,481 L47,481 L47,243 L23,449 L-44,427 L35,160 Q52,88 75,61 Z"/>
+    <path id="hdB-p" d="M180,40 Q250,54 320,40 L425,61 Q448,88 465,160 L544,427 L477,449 L453,243 L453,481 L47,481 L47,243 L23,449 L-44,427 L35,160 Q52,88 75,61 Z"/>
+    <g id="hd-rib">
+      <path d="M50,479 L450,479 L444,528 L56,528 Z" fill="url(#rib)"/>
+      <path d="M-44,425 L23,447 L12,494 L-55,472 Z M544,425 L477,447 L488,494 L555,472 Z" fill="url(#rib)"/>
+    </g>
+    <g id="hd-seams" fill="none">
+      <path d="M75,61 Q58,150 47,243 M425,61 Q442,150 453,243" stroke="#212121" stroke-width="1.5"/>
+      <path d="M47,243 Q50,300 47,470 M453,243 Q450,300 453,470" stroke="#151515" stroke-width="6" opacity=".6"/>
+    </g>
+    <g id="hdFront" filter="url(#shadow)">
+      <path d="M150,72 C140,14 176,-22 250,-24 C324,-22 360,14 350,72 Z" fill="#141414"/>
+      <use href="#hd-p" fill="#0f0f0f"/><use href="#hd-p" fill="url(#fold)"/><use href="#hd-p" fill="url(#foldV)"/>
+      <use href="#hd-seams"/><use href="#hd-rib"/>
+      <path d="M180,40 C178,18 206,2 250,2 C294,2 322,18 320,40 Q250,100 180,40 Z" fill="#060606"/>
+      <path d="M180,42 C178,18 206,2 250,2 C294,2 322,18 320,42" fill="none" stroke="#1d1d1d" stroke-width="9"/>
+      <path d="M150,322 L350,322 L384,477 L116,477 Z" fill="#fff" fill-opacity=".015" stroke="#262626" stroke-width="2"/><path d="M156,328 L344,328" stroke="#2c2c2c" stroke-width="1" stroke-dasharray="3 3"/>
+      <path d="M150,322 L128,477 M350,322 L372,477" stroke="#070707" stroke-width="3"/>
+      <g stroke="#3a3a3a" stroke-width="3" stroke-linecap="round" fill="none"><path d="M232,92 Q228,150 226,198"/><path d="M268,92 Q272,150 274,198"/></g>
+      <g fill="#6a6a6a"><rect x="222" y="196" width="8" height="14" rx="2"/><rect x="270" y="196" width="8" height="14" rx="2"/></g>
+    </g>
+    <g id="hdBack" filter="url(#shadow)">
+      <use href="#hdB-p" fill="#0f0f0f"/><use href="#hdB-p" fill="url(#fold)"/><use href="#hdB-p" fill="url(#foldV)"/>
+      <use href="#hd-seams"/><use href="#hd-rib"/>
+      <path d="M180,40 Q250,54 320,40 C352,60 366,120 360,170 C352,228 300,252 250,256 C200,252 148,228 140,170 C134,120 148,60 180,40 Z" fill="#181818" filter="url(#shadow)"/>
+      <path d="M250,50 L250,256" stroke="#232323" stroke-width="1.5"/>
+      <path d="M140,170 C148,228 200,252 250,256 C300,252 352,228 360,170" fill="none" stroke="#1d1d1d" stroke-width="3"/>
+    </g>
+
+    <!-- ===== Bomber MA-1 L: dada 60, panjang 66, bahu 48, lengan 64, manset 9, sudut 16° ===== -->
+    <path id="jk-p" d="M183,20 Q250,32 317,20 L418,40 Q436,58 448,110 Q492,231 528,423 L468,440 Q472,330 460,222 Q468,330 456,433 L44,433 Q32,330 40,222 Q28,330 32,440 L-28,423 Q8,231 52,110 Q64,58 82,40 Z"/>
+    <g id="jk-rib">
+      <path d="M58,431 L442,431 L436,480 L64,480 Z" fill="url(#rib)"/>
+      <path d="M-28,421 L32,438 L16,486 L-38,469 Z M528,421 L468,438 L484,486 L538,469 Z" fill="url(#rib)"/>
+      <path d="M180,6 Q250,20 320,6 L317,24 Q250,38 183,24 Z" fill="url(#rib)"/>
+    </g>
+    <g id="jk-seams" fill="none">
+      <path d="M82,40 Q56,130 40,222 M418,40 Q444,130 460,222" stroke="#252525" stroke-width="1.5"/>
+      <path d="M-4,300 Q14,310 36,306 M504,300 Q486,310 464,306" stroke="#1d1d1d" stroke-width="2"/>
+    </g>
+    <g id="jkBack" filter="url(#shadow)">
+      <use href="#jk-p" fill="#121212"/><use href="#jk-p" fill="url(#satin)"/>
+      <use href="#jk-seams"/><use href="#jk-rib"/>
+    </g>
+    <g id="jkFront" filter="url(#shadow)">
+      <use href="#jk-p" fill="#121212"/><use href="#jk-p" fill="url(#satin)"/>
+      <use href="#jk-seams"/><use href="#jk-rib"/>
+      <path d="M250,30 L250,480" stroke="#2e2e2e" stroke-width="5"/><path d="M250,30 L250,480" stroke="#6a6a6a" stroke-width="1" stroke-dasharray="2 2"/>
+      <rect x="244" y="34" width="12" height="20" rx="2" fill="#7a7a7a"/>
+      <path d="M78,288 L114,356 M422,288 L386,356" stroke="#262626" stroke-width="7" stroke-linecap="round"/>
+      <path d="M78,288 L114,356 M422,288 L386,356" stroke="#3a3a3a" stroke-width="1"/>
+    </g>
+
+    <!-- ===== Coach jacket L: dada 62, panjang 72, bahu 50, lengan 62, manset karet 12, sudut 22° ===== -->
+    <path id="cj-p" d="M180,20 Q250,34 320,20 L425,42 Q452,62 462,110 L588,444 L510,476 L467,231 L467,524 Q250,530 33,524 L33,231 L-10,476 L-88,444 L38,110 Q48,62 75,42 Z"/>
+    <linearGradient id="nylon" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".08"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".3"/>
+    </linearGradient>
+    <g id="cj-seams" fill="none">
+      <path d="M75,42 Q50,140 33,231 M425,42 Q450,140 467,231" stroke="#232323" stroke-width="1.5"/>
+      <path d="M-78,428 L0,460 M-74,438 L4,470 M578,428 L500,460 M574,438 L496,470" stroke="#262626" stroke-width="1.2" stroke-dasharray="3 2"/>
+      <path d="M33,512 Q250,518 467,512" stroke="#262626" stroke-width="1.5" stroke-dasharray="5 3"/>
+    </g>
+    <g id="cjFront" filter="url(#shadow)">
+      <use href="#cj-p" fill="#101010"/><use href="#cj-p" fill="url(#nylon)"/><use href="#cj-p" fill="url(#fold)"/>
+      <use href="#cj-seams"/>
+      <path d="M250,46 L250,526" stroke="#262626" stroke-width="3"/>
+      <g fill="#2e2e2e" stroke="#555" stroke-width="1.2"><circle cx="250" cy="130" r="6"/><circle cx="250" cy="210" r="6"/><circle cx="250" cy="290" r="6"/><circle cx="250" cy="370" r="6"/><circle cx="250" cy="450" r="6"/></g>
+      <path d="M178,18 L250,46 L228,100 L170,48 Z" fill="#171717" stroke="#262626"/>
+      <path d="M322,18 L250,46 L272,100 L330,48 Z" fill="#171717" stroke="#262626"/>
+      <g stroke="#3a3a3a" stroke-width="2.5"><path d="M42,512 L36,548"/><path d="M458,512 L464,548"/></g>
+      <g fill="#555"><rect x="31" y="546" width="10" height="12" rx="3"/><rect x="459" y="546" width="10" height="12" rx="3"/></g>
+    </g>
+    <g id="cjBack" filter="url(#shadow)">
+      <use href="#cj-p" fill="#101010"/><use href="#cj-p" fill="url(#nylon)"/><use href="#cj-p" fill="url(#fold)"/>
+      <use href="#cj-seams"/>
+      <path d="M178,18 Q250,30 322,18 L326,6 Q250,18 174,6 Z" fill="#171717"/>
+      <path d="M58,104 Q250,120 442,104" fill="none" stroke="#232323" stroke-width="1.5"/>
+    </g>
+
+    
+    <!-- ===== Siluet dari foto referensi (bentuk saja), 600 px tinggi ===== -->
+    <mask id="m-hf" maskUnits="userSpaceOnUse" x="0" y="0" width="529" height="600"><image href="/files/sil-hoodie-front.png" width="529" height="600"/></mask>
+    <mask id="m-hb" maskUnits="userSpaceOnUse" x="0" y="0" width="533" height="600"><image href="/files/sil-hoodie-back.png" width="533" height="600"/></mask>
+    <mask id="m-jk" maskUnits="userSpaceOnUse" x="0" y="0" width="544" height="600"><image href="/files/sil-jacket-front.png" width="544" height="600"/></mask>
+    <linearGradient id="g-fold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#000" stop-opacity=".45"/><stop offset=".1" stop-color="#fff" stop-opacity=".05"/>
+      <stop offset=".22" stop-color="#000" stop-opacity=".25"/><stop offset=".3" stop-color="#fff" stop-opacity=".03"/>
+      <stop offset=".5" stop-color="#fff" stop-opacity=".06"/><stop offset=".7" stop-color="#fff" stop-opacity=".02"/>
+      <stop offset=".78" stop-color="#000" stop-opacity=".25"/><stop offset=".9" stop-color="#fff" stop-opacity=".05"/>
+      <stop offset="1" stop-color="#000" stop-opacity=".45"/>
+    </linearGradient>
+    <linearGradient id="g-top" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".07"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".3"/>
+    </linearGradient>
+    <pattern id="rib2" width="5" height="10" patternUnits="userSpaceOnUse"><rect width="5" height="10" fill="#111"/><rect width="2" height="10" fill="#1d1d1d"/></pattern>
+    <filter id="soft" x="-5%" y="-5%" width="110%" height="115%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-opacity=".3"/></filter>
+
+    <!-- Hoodie depan -->
+    <g id="hfF" filter="url(#soft)"><g mask="url(#m-hf)">
+      <rect width="529" height="600" fill="#0e0e0e"/>
+      <rect width="529" height="600" fill="url(#g-fold)"/><rect width="529" height="600" fill="url(#g-top)"/>
+      <!-- bukaan tudung -->
+      <path d="M190,108 C186,52 216,28 258,28 C300,28 330,52 326,108 C304,98 282,108 258,122 C234,108 212,98 190,108 Z" fill="#040404"/>
+      <path d="M190,108 C186,52 216,28 258,28 C300,28 330,52 326,108" fill="none" stroke="#1c1c1c" stroke-width="6"/>
+      <path d="M240,118 L258,124 L276,118 L266,142 Z" fill="#151515"/>
+      <!-- bahu jatuh & garis dalam lengan -->
+      <path d="M112,178 Q120,232 130,288 M408,176 Q400,230 392,286" fill="none" stroke="#1d1d1d" stroke-width="2"/>
+      <path d="M130,288 Q118,420 104,532 M392,286 Q405,420 422,530" fill="none" stroke="#050505" stroke-width="7" opacity=".7"/>
+      <path d="M136,292 Q125,420 112,532 M386,290 Q398,420 414,530" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+      <!-- saku kanguru -->
+      <path d="M186,350 L334,350 Q352,430 366,510 L152,510 Q166,430 186,350 Z" fill="#fff" fill-opacity=".018" stroke="#232323" stroke-width="2"/>
+      <path d="M186,350 Q170,430 156,505 M334,350 Q350,430 362,505" fill="none" stroke="#050505" stroke-width="4"/>
+      <!-- rib pinggang & manset -->
+      <rect x="96" y="522" width="336" height="50" fill="url(#rib2)"/>
+      <path d="M0,546 L102,544 L104,600 L0,600 Z M422,542 L529,548 L529,600 L420,600 Z" fill="url(#rib2)"/>
+      <path d="M96,522 L432,522" stroke="#262626" stroke-width="1.5"/>
+    </g></g>
+
+    <!-- Hoodie belakang -->
+    <g id="hfB" filter="url(#soft)"><g mask="url(#m-hb)">
+      <rect width="533" height="600" fill="#0e0e0e"/>
+      <rect width="533" height="600" fill="url(#g-fold)"/><rect width="533" height="600" fill="url(#g-top)"/>
+      <path d="M118,104 Q132,140 150,176 M415,104 Q401,140 383,176" fill="none" stroke="#1d1d1d" stroke-width="2"/>
+      <path d="M150,176 Q138,340 122,488 M383,176 Q395,340 412,486" fill="none" stroke="#050505" stroke-width="7" opacity=".7"/>
+      <path d="M156,180 Q145,340 130,488 M377,180 Q388,340 404,486" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+      <!-- tudung rebah meruncing -->
+      <path d="M160,6 L372,6 C388,58 388,112 362,146 C334,176 292,196 266,206 C240,196 198,176 170,146 C144,112 144,58 160,6 Z" fill="#141414"/>
+      <path d="M266,10 L266,204" stroke="#202020" stroke-width="2"/>
+      <path d="M170,146 C198,176 240,196 266,206 C292,196 334,176 362,146" fill="none" stroke="#070707" stroke-width="6" opacity=".7"/>
+      <rect x="110" y="500" width="315" height="40" fill="url(#rib2)"/>
+      <path d="M0,546 L104,544 L106,600 L0,600 Z M428,544 L533,548 L533,600 L426,600 Z" fill="url(#rib2)"/>
+      <path d="M110,500 L425,500" stroke="#262626" stroke-width="1.5"/>
+    </g></g>
+
+    <!-- Jaket zip berkerah (depan) -->
+    <g id="zjF" filter="url(#soft)"><g mask="url(#m-jk)">
+      <rect width="544" height="600" fill="#0f0f0f"/>
+      <rect width="544" height="600" fill="url(#g-fold)"/><rect width="544" height="600" fill="url(#g-top)"/>
+      <path d="M100,100 Q108,180 118,262 M444,100 Q436,180 428,258" fill="none" stroke="#1f1f1f" stroke-width="2"/>
+      <path d="M118,262 Q110,420 100,548 M428,258 Q436,420 448,548" fill="none" stroke="#050505" stroke-width="6" opacity=".7"/>
+      <path d="M124,266 Q116,420 108,548 M422,262 Q430,420 440,548" fill="none" stroke="#1b1b1b" stroke-width="1.5"/>
+      <!-- kerah kemeja -->
+      <path d="M268,56 L272,116 L238,106 L182,52 Z" fill="#000" opacity=".55" transform="translate(4,7)"/><path d="M276,56 L272,116 L306,106 L362,52 Z" fill="#000" opacity=".55" transform="translate(-4,7)"/>
+      <path d="M213,14 C196,26 184,36 172,48 L238,106 L272,116 L268,54 C252,38 232,22 213,14 Z" fill="#1d1d1d" stroke="#3a3a3a" stroke-width="1.5"/>
+      <path d="M331,14 C348,26 360,36 372,48 L306,106 L272,116 L276,54 C292,38 312,22 331,14 Z" fill="#1d1d1d" stroke="#3a3a3a" stroke-width="1.5"/>
+      <path d="M180,52 L240,104 M364,52 L304,104" stroke="#2e2e2e" stroke-width="1" stroke-dasharray="3 2"/>
+      <path d="M215,16 Q272,30 329,16" fill="none" stroke="#262626" stroke-width="1.5"/>
+      <!-- resleting dua arah -->
+      <path d="M272,116 L272,556" stroke="#1e1e1e" stroke-width="5"/><path d="M272,116 L272,556" stroke="#4a4a4a" stroke-width="1" stroke-dasharray="1.5 1.5"/>
+      <rect x="267" y="118" width="10" height="20" rx="2" fill="#8a8a8a"/><rect x="267" y="532" width="10" height="20" rx="2" fill="#8a8a8a"/>
+      <!-- keliman & manset -->
+      <path d="M100,538 L448,538" stroke="#232323" stroke-width="1.5" stroke-dasharray="4 3"/>
+      <path d="M2,540 L100,546 M448,546 L542,552" stroke="#232323" stroke-width="2"/>
+      <path d="M2,548 L100,554 M448,554 L542,560" stroke="#232323" stroke-width="1.2" stroke-dasharray="3 3"/>
+    </g></g>
+
+    <!-- Jaket zip berkerah (belakang; siluet sama, kerah dilihat dari belakang) -->
+    <g id="zjB" filter="url(#soft)"><g mask="url(#m-jk)">
+      <rect width="544" height="600" fill="#0f0f0f"/>
+      <rect width="544" height="600" fill="url(#g-fold)"/><rect width="544" height="600" fill="url(#g-top)"/>
+      <path d="M100,100 Q108,180 118,262 M444,100 Q436,180 428,258" fill="none" stroke="#1f1f1f" stroke-width="2"/>
+      <path d="M118,262 Q110,420 100,548 M428,258 Q436,420 448,548" fill="none" stroke="#050505" stroke-width="6" opacity=".7"/>
+      <path d="M0,0 L544,0 L544,40 Q272,62 0,40 Z" fill="#161616"/>
+      <path d="M200,40 Q272,62 344,40" fill="none" stroke="#262626" stroke-width="1.5"/>
+      <path d="M104,104 Q272,124 440,104" fill="none" stroke="#1d1d1d" stroke-width="1.5"/>
+      <path d="M100,538 L448,538" stroke="#232323" stroke-width="1.5" stroke-dasharray="4 3"/>
+      <path d="M2,540 L100,546 M448,546 L542,552" stroke="#232323" stroke-width="2"/>
+    </g></g>
+
+    <!-- ===== Merch: logam enamel ===== -->
+    <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#9a9a9a"/><stop offset=".45" stop-color="#4a4a4a"/><stop offset=".6" stop-color="#8a8a8a"/><stop offset="1" stop-color="#3a3a3a"/>
+    </linearGradient>
+    <linearGradient id="acrylic" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".5" stop-color="#fff" stop-opacity=".15"/><stop offset="1" stop-color="#fff" stop-opacity=".45"/>
+    </linearGradient>
+    <g id="kamon">
+      <g fill="#f2f2f2"><use href="#flame"/><use href="#flame" transform="rotate(45)"/><use href="#flame" transform="rotate(90)"/><use href="#flame" transform="rotate(135)"/><use href="#flame" transform="rotate(180)"/><use href="#flame" transform="rotate(225)"/><use href="#flame" transform="rotate(270)"/><use href="#flame" transform="rotate(315)"/></g>
+      <circle r="54" fill="#0b0b0b" stroke="#f2f2f2" stroke-width="7"/>
+      <text y="21" text-anchor="middle" class="jp" font-size="60" fill="#f2f2f2">虎</text>
+    </g>
+    <g id="ring-key"><circle r="20" fill="none" stroke="url(#metal)" stroke-width="5"/></g>
+
+  </defs>
+</svg>
+
+<!-- =============================== 1. KAOS HONOO =============================== -->
+<div class="tz-sec"><h3>1 · Kaos Honoo</h3><span class="tz-tag">Sablon · 1 warna</span></div>
+<div class="cards tz-grid" data-multiselect>
+
+  <div class="card" data-choice="honoo-a" onclick="toggleSelect(this)">
+    <div class="card-image"><svg viewBox="0 0 1340 600">
+      <g transform="translate(80,20)"><use href="#teeFront"/>
+        <g filter="url(#distress)"><text x="250" y="318" text-anchor="middle" class="jp" font-size="236" fill="#efefef">火</text></g>
+        <text x="250" y="372" text-anchor="middle" class="ar" font-size="18" letter-spacing="10" fill="#efefef">TORAHO</text>
+      </g>
+      <g transform="translate(750,20)"><use href="#teeBack"/>
+        <text x="250" y="78" text-anchor="middle" class="ar" font-size="15" letter-spacing="7" fill="#efefef">TORAHO</text>
+        <line x1="205" y1="88" x2="295" y2="88" stroke="#efefef" stroke-width="1.5"/>
+        <text x="250" y="104" text-anchor="middle" font-size="9" letter-spacing="3" fill="#bdbdbd">虎火 · HONOO 炎 · 001</text>
+      </g>
+      <text x="330" y="590" text-anchor="middle" class="lbl">DEPAN</text><text x="1000" y="590" text-anchor="middle" class="lbl">BELAKANG</text>
+    </svg></div>
+    <div class="card-body"><h3>A · Kuas Retak</h3><p>Depan: kanji 火 besar (28 cm) bertekstur sablon tua. Belakang: label kecil di bawah kerah seperti tag edisi.</p><p class="tz-note">Plastisol putih, 2 posisi cetak. Tekstur retak ada di film, tanpa biaya tambahan.</p></div>
+  </div>
+
+  <div class="card" data-choice="honoo-b" onclick="toggleSelect(this)">
+    <div class="card-image"><svg viewBox="0 0 1340 600">
+      <g transform="translate(80,20)"><use href="#teeFront"/>
+        <g transform="translate(316,142)"><rect x="-24" y="-24" width="48" height="48" rx="5" fill="#efefef"/><text y="15" text-anchor="middle" class="jp" font-size="36" fill="#0d0d0d">火</text></g>
+        <text x="316" y="186" text-anchor="middle" class="ar" font-size="8" letter-spacing="3" fill="#efefef">TORAHO</text>
+      </g>
+      <g transform="translate(750,20)"><use href="#teeBack"/>
+        <text x="236" y="330" text-anchor="middle" class="jp" font-size="250" fill="url(#dots)">火</text>
+        <text x="352" y="96" class="jp" font-size="22" fill="#efefef" style="writing-mode:vertical-rl">炎上虎火</text>
+        <line x1="150" y1="360" x2="350" y2="360" stroke="#efefef" stroke-width="2"/>
+        <text x="150" y="380" class="ar" font-size="13" letter-spacing="6" fill="#efefef">HONOO</text>
+        <text x="350" y="380" text-anchor="end" class="ar" font-size="9" letter-spacing="3" fill="#efefef">トラホ / NO.01</text>
+      </g>
+      <text x="330" y="590" text-anchor="middle" class="lbl">DEPAN</text><text x="1000" y="590" text-anchor="middle" class="lbl">BELAKANG</text>
+    </svg></div>
+    <div class="card-body"><h3>B · Stempel &amp; Titik Api</h3><p>Depan: stempel <i>hanko</i> 火 di dada kiri. Belakang: 火 raksasa dari titik halftone + kanji vertikal & katakana トラホ, gaya poster editorial.</p><p class="tz-note">1 warna putih; titik ≥ 1 mm. Kombinasi dada kecil + punggung besar = format streetwear paling laku.</p></div>
+  </div>
+
+  <div class="card" data-choice="honoo-c" onclick="toggleSelect(this)">
+    <div class="card-image"><svg viewBox="0 0 1340 600">
+      <g transform="translate(80,20)"><use href="#teeFront"/>
+        <g transform="translate(316,140)"><circle r="25" fill="none" stroke="#efefef" stroke-width="2.5"/><text y="11" text-anchor="middle" class="jp" font-size="30" fill="#efefef">火</text></g>
+      </g>
+      <g transform="translate(750,20)"><use href="#teeBack"/>
+        <text x="250" y="70" text-anchor="middle" class="jp" font-size="18" letter-spacing="10" fill="#efefef">虎火</text>
+      </g>
+      <text x="330" y="590" text-anchor="middle" class="lbl">DEPAN</text><text x="1000" y="590" text-anchor="middle" class="lbl">BELAKANG</text>
+    </svg></div>
+    <div class="card-body"><h3>C · Lencana Minimal</h3><p>Depan: lingkaran 火 kecil di dada kiri. Belakang: 虎火 kecil di bawah kerah. Kaos “basic” yang dipakai harian.</p><p class="tz-note">Paling murah diproduksi; dada kiri juga bisa diganti bordir.</p></div>
+  </div>
+</div>
+
+<!-- =============================== 2. KAOS TORA =============================== -->
+<div class="tz-sec"><h3>2 · Kaos Tora</h3><span class="tz-tag">Sablon · 1–2 warna · fokus punggung</span></div>
+<div class="cards tz-grid" data-multiselect>
+
+  <div class="card" data-choice="tora-a" onclick="toggleSelect(this)">
+    <div class="card-image"><svg viewBox="0 0 1340 600">
+      <g transform="translate(80,20)"><use href="#teeFront"/>
+        <image href="/files/tiger-flat.png" x="292" y="118" width="62" height="48"/>
+        <text x="322" y="180" text-anchor="middle" class="ar" font-size="8" letter-spacing="3" fill="#efefef">TORAHO</text>
+      </g>
+      <g transform="translate(750,20)"><use href="#teeBack"/>
+        <text x="160" y="92" class="jp" font-size="34" fill="#efefef" style="writing-mode:vertical-rl">虎火</text>
+        <image href="/files/tiger-flat.png" x="172" y="88" width="190" height="149"/>
+        <text x="250" y="300" text-anchor="middle" class="ar" font-size="44" letter-spacing="5" fill="#efefef">TORAHO</text>
+        <text x="250" y="324" text-anchor="middle" font-size="10" letter-spacing="4.5" fill="#efefef">THE TIGER BURNS WITHIN</text>
+        <text x="250" y="352" text-anchor="middle" class="jp" font-size="12" letter-spacing="8" fill="#9a9a9a">トラホ</text>
+      </g>
+      <text x="330" y="590" text-anchor="middle" class="lbl">DEPAN</text><text x="1000" y="590" text-anchor="middle" class="lbl">BELAKANG</text>
+    </svg></div>
+    <div class="card-body"><h3>A · Stensil Harimau</h3><p>Depan: harimau kecil di dada kiri. Belakang: harimau-api siluet tegas + 虎火 vertikal + wordmark TORAHO besar.</p><p class="tz-note">1 warna putih; punggung 30×36 cm. Siluet sama bisa dipakai ulang untuk bordir jaket.</p></div>
+  </div>
+
+  <div class="card" data-choice="tora-b" onclick="toggleSelect(this)">
+    <div class="card-image"><svg viewBox="0 0 1340 600">
+      <g transform="translate(80,20)"><use href="#teeFront"/>
+        <text x="250" y="132" text-anchor="middle" class="ar" font-size="20" letter-spacing="8" fill="#efefef">TORAHO</text>
+        <text x="250" y="150" text-anchor="middle" font-size="9" letter-spacing="5" fill="#bdbdbd">虎火 · TIGER OF FIRE</text>
+      </g>
+      <g transform="translate(750,20)"><use href="#teeBack"/>
+        <rect x="146" y="76" width="208" height="270" fill="none" stroke="#efefef" stroke-width="2"/>
+        <image href="/files/tiger-halftone.svg" x="152" y="98" width="196" height="153"/>
+        <rect x="146" y="262" width="208" height="30" fill="#efefef"/>
+        <text x="250" y="283" text-anchor="middle" class="ar" font-size="14" letter-spacing="3" fill="#0d0d0d">虎火 TIGER OF FIRE</text>
+        <text x="156" y="312" class="ar" font-size="8" letter-spacing="2" fill="#efefef">KOLEKSI 01</text>
+        <text x="344" y="312" text-anchor="end" class="ar" font-size="8" letter-spacing="2" fill="#efefef">トラホ · 2026</text>
+        <text x="156" y="334" font-size="7" letter-spacing="1" fill="#9a9a9a">DIBUAT DENGAN API, BUKAN TAKUT.</text>
+      </g>
+      <text x="330" y="590" text-anchor="middle" class="lbl">DEPAN</text><text x="1000" y="590" text-anchor="middle" class="lbl">BELAKANG</text>
+    </svg></div>
+    <div class="card-body"><h3>B · Poster Halftone</h3><p>Depan: wordmark TORAHO di tengah dada. Belakang: harimau halftone dalam bingkai seperti poster film, label putih, tagline kecil.</p><p class="tz-note">1 warna; mesh 120–150 agar titik tajam.</p></div>
+  </div>
+
+  <div class="card" data-choice="tora-c" onclick="toggleSelect(this)">
+    <div class="card-image"><svg viewBox="0 0 1340 600">
+      <g transform="translate(80,20)"><use href="#teeFront"/>
+        <g transform="translate(316,142)"><circle r="26" fill="none" stroke="#efefef" stroke-width="2"/><circle r="21" fill="none" stroke="#777" stroke-width="1"/><image href="/files/tiger-2tone.png" x="-19" y="-15" width="38" height="30"/></g>
+      </g>
+      <g transform="translate(750,20)"><use href="#teeBack"/>
+        <circle cx="250" cy="214" r="106" fill="none" stroke="#efefef" stroke-width="3"/>
+        <circle cx="250" cy="214" r="74" fill="none" stroke="#7a7a7a" stroke-width="1.5"/>
+        <text class="ar" font-size="13" letter-spacing="5.6" fill="#efefef"><textPath href="#ring-tora">TORAHO · TIGER OF FIRE · 虎火 · EST 2026 ·</textPath></text>
+        <image href="/files/tiger-2tone.png" x="186" y="164" width="128" height="100"/>
+        <text x="250" y="358" text-anchor="middle" class="jp" font-size="22" letter-spacing="16" fill="#efefef">虎 火</text>
+      </g>
+      <text x="330" y="590" text-anchor="middle" class="lbl">DEPAN</text><text x="1000" y="590" text-anchor="middle" class="lbl">BELAKANG</text>
+    </svg></div>
+    <div class="card-body"><h3>C · Medali Dua Warna</h3><p>Depan: medali kecil. Belakang: harimau putih-abu di tengah cincin teks melingkar “TORAHO · TIGER OF FIRE · 虎火”. Terlihat premium.</p><p class="tz-note">2 warna (putih + abu), 2 layar. Cocok edisi terbatas bernomor.</p></div>
+  </div>
+</div>
+
+<!-- =============================== 3. KAOS YAMI =============================== -->
+<div class="tz-sec"><h3>3 · Kaos Yami (oversize)</h3><span class="tz-tag">Sablon tonal · hitam di atas hitam</span></div>
+<div class="cards tz-grid" data-multiselect>
+
+  <div class="card" data-choice="yami-a" onclick="toggleSelect(this)">
+    <div class="card-image"><svg viewBox="0 0 1400 600">
+      <clipPath id="clipWF"><use href="#wideF-p"/></clipPath><clipPath id="clipWB"><use href="#wideB-p"/></clipPath>
+      <g transform="translate(100,20)"><use href="#wideFront"/>
+        <rect x="-90" y="400" width="680" height="150" fill="url(#seigaiha)" clip-path="url(#clipWF)"/>
+        <image href="/files/mark-white.png" x="318" y="112" width="44" height="44" opacity=".9"/>
+      </g>
+      <g transform="translate(790,20)"><use href="#wideBack"/>
+        <rect x="-90" y="330" width="680" height="220" fill="url(#seigaiha)" clip-path="url(#clipWB)"/>
+        <text x="250" y="76" text-anchor="middle" class="jp" font-size="22" fill="#efefef">闇</text>
+        <text x="250" y="96" text-anchor="middle" class="ar" font-size="8" letter-spacing="5" fill="#9a9a9a">YAMI · TORAHO</text>
+      </g>
+      <text x="350" y="590" text-anchor="middle" class="lbl">DEPAN</text><text x="1040" y="590" text-anchor="middle" class="lbl">BELAKANG</text>
+    </svg></div>
+    <div class="card-body"><h3>A · Ombak Senyap</h3><p>Ombak seigaiha abu-gelap “naik” dari bawah depan & belakang, logo kecil di dada, 闇 di tengkuk. Polos dari jauh, detail saat dekat.</p><p class="tz-note">Tinta abu gelap (tonal) + 1 warna kecil.</p></div>
+  </div>
+
+  <div class="card" data-choice="yami-b" onclick="toggleSelect(this)">
+    <div class="card-image"><svg viewBox="0 0 1400 600">
+      <g transform="translate(100,20)"><use href="#wideFront"/>
+        <text x="340" y="150" text-anchor="middle" class="jp" font-size="30" fill="#efefef">闇</text>
+        <text x="340" y="168" text-anchor="middle" class="ar" font-size="7" letter-spacing="4" fill="#9a9a9a">YAMI</text>
+      </g>
+      <g transform="translate(790,20)"><use href="#wideBack"/>
+        <image href="/files/tiger-flat.png" x="70" y="96" width="360" height="282" opacity=".1"/>
+        <text x="250" y="440" text-anchor="middle" class="ar" font-size="11" letter-spacing="9" fill="#5a5a5a">IN THE DARK, THE TIGER WAITS</text>
+      </g>
+      <text x="350" y="590" text-anchor="middle" class="lbl">DEPAN</text><text x="1040" y="590" text-anchor="middle" class="lbl">BELAKANG</text>
+    </svg></div>
+    <div class="card-body"><h3>B · Bayangan Harimau</h3><p>Depan: 闇 putih kecil. Belakang: harimau raksasa hitam-doff di atas kaos hitam, hanya terlihat saat kena cahaya.</p><p class="tz-note">Tinta hitam doff/puff + 1 warna kecil. Efek “rahasia” yang disukai pembeli streetwear.</p></div>
+  </div>
+</div>
+
+<!-- =============================== 4. HOODIE =============================== -->
+<div class="tz-sec"><h3>4 · Hoodie Tora</h3><span class="tz-tag">Boxy oversize · sablon · punggung di bawah tudung</span></div>
+<div class="cards tz-grid" data-multiselect>
+
+  <div class="card" data-choice="hoodie-a" onclick="toggleSelect(this)">
+    <div class="card-image"><svg viewBox="0 0 1180 680">
+      <g transform="translate(40,30)"><use href="#hfF"/>
+        <text x="258" y="236" text-anchor="middle" class="ar" font-size="24" letter-spacing="6" fill="#efefef">TORAHO</text>
+        <text x="258" y="254" text-anchor="middle" font-size="8" letter-spacing="4" fill="#bdbdbd">虎火 · TIGER OF FIRE</text>
+        <text transform="translate(424,300) rotate(80)" class="ar" font-size="11" letter-spacing="4" fill="#efefef">虎火 · TORAHO</text>
+      </g>
+      <g transform="translate(610,30)"><use href="#hfB"/>
+        <text x="168" y="246" class="jp" font-size="26" fill="#efefef" style="writing-mode:vertical-rl">虎火</text>
+        <image href="/files/tiger-flat.png" x="192" y="236" width="172" height="134"/>
+        <text x="266" y="400" text-anchor="middle" class="ar" font-size="10" letter-spacing="3" fill="#efefef">THE TIGER BURNS WITHIN</text>
+      </g>
+      <text x="304" y="668" text-anchor="middle" class="lbl">DEPAN</text><text x="876" y="668" text-anchor="middle" class="lbl">BELAKANG</text>
+    </svg></div>
+    <div class="card-body"><h3>A · Stensil + Lengan</h3><p>Depan: wordmark TORAHO di dada. Lengan kiri: 虎火 · TORAHO. Belakang: harimau stensil + 虎火 vertikal di bawah ujung tudung.</p><p class="tz-note">1 warna putih, 3 posisi cetak. Film harimau sama dengan Kaos Tora A.</p></div>
+  </div>
+
+  <div class="card" data-choice="hoodie-b" onclick="toggleSelect(this)">
+    <div class="card-image"><svg viewBox="0 0 1180 680">
+      <g transform="translate(40,30)"><use href="#hfF"/>
+        <g transform="translate(258,252) scale(.45)"><use href="#kamon"/></g>
+      </g>
+      <g transform="translate(610,30)"><use href="#hfB"/>
+        <text x="256" y="412" text-anchor="middle" class="jp" font-size="160" fill="url(#dots)">虎</text>
+        <text x="352" y="244" class="jp" font-size="14" fill="#efefef" style="writing-mode:vertical-rl">虎火商店</text>
+        <line x1="176" y1="432" x2="356" y2="432" stroke="#efefef" stroke-width="2"/>
+        <text x="176" y="448" class="ar" font-size="11" letter-spacing="4" fill="#efefef">TORAHO</text>
+        <text x="356" y="448" text-anchor="end" class="ar" font-size="8" letter-spacing="2" fill="#efefef">トラホ / NO.02</text>
+      </g>
+      <text x="304" y="668" text-anchor="middle" class="lbl">DEPAN</text><text x="876" y="668" text-anchor="middle" class="lbl">BELAKANG</text>
+    </svg></div>
+    <div class="card-body"><h3>B · Kamon &amp; Titik</h3><p>Depan: kamon api 虎 di tengah dada (di atas saku). Belakang: kanji 虎 raksasa dari titik halftone, satu seri dengan Kaos Honoo B.</p><p class="tz-note">1 warna putih. Kamon depan bisa diganti bordir untuk versi premium.</p></div>
+  </div>
+
+  <div class="card" data-choice="hoodie-c" onclick="toggleSelect(this)">
+    <div class="card-image"><svg viewBox="0 0 1180 680">
+      <g transform="translate(40,30)"><use href="#hfF"/>
+        <g mask="url(#m-hf)"><image href="/files/tiger-flat.png" x="140" y="150" width="240" height="188" opacity=".1"/></g>
+        <text x="330" y="184" text-anchor="middle" class="jp" font-size="20" fill="#efefef">闇</text>
+      </g>
+      <g transform="translate(610,30)"><use href="#hfB"/>
+        <g mask="url(#m-hb)"><rect x="0" y="340" width="533" height="160" fill="url(#seigaiha)"/></g>
+        <text x="266" y="256" text-anchor="middle" class="ar" font-size="10" letter-spacing="5" fill="#6a6a6a">IN THE DARK, THE TIGER WAITS</text>
+      </g>
+      <text x="304" y="668" text-anchor="middle" class="lbl">DEPAN</text><text x="876" y="668" text-anchor="middle" class="lbl">BELAKANG</text>
+    </svg></div>
+    <div class="card-body"><h3>C · Yami Tonal</h3><p>Depan: harimau hitam-doff samar + 闇 putih kecil. Belakang: ombak seigaiha tonal. Pasangan Kaos Yami.</p><p class="tz-note">Tinta tonal hitam/abu gelap + 1 warna kecil.</p></div>
+  </div>
+</div>
+
+<!-- =============================== 5. JAKET =============================== -->
+<div class="tz-sec"><h3>5 · Jaket Zip Berkerah</h3><span class="tz-tag">Potongan lurus pendek · sablon / bordir</span></div>
+<div class="cards tz-grid" data-multiselect>
+
+  <div class="card" data-choice="jaket-a" onclick="toggleSelect(this)">
+    <div class="card-image"><svg viewBox="0 0 1200 680">
+      <path id="arc-zj" d="M150,176 Q272,96 394,176" fill="none"/>
+      <g transform="translate(40,30)"><use href="#zjF"/>
+        <image href="/files/mark-white.png" x="318" y="150" width="50" height="50"/>
+        <text x="343" y="212" text-anchor="middle" class="ar" font-size="7" letter-spacing="3" fill="#efefef">TORAHO</text>
+      </g>
+      <g transform="translate(620,30)"><use href="#zjB"/>
+        <text class="ar" font-size="34" letter-spacing="5" fill="#efefef" text-anchor="middle"><textPath href="#arc-zj" startOffset="50%">TORAHO</textPath></text>
+        <image href="/files/tiger-halftone.svg" x="164" y="180" width="216" height="169"/>
+        <text x="272" y="384" text-anchor="middle" class="jp" font-size="20" letter-spacing="12" fill="#efefef">虎 火</text>
+        <text x="272" y="406" text-anchor="middle" class="ar" font-size="9" letter-spacing="5" fill="#9a9a9a">KUMO · STREET DIVISION</text>
+      </g>
+      <text x="312" y="668" text-anchor="middle" class="lbl">DEPAN</text><text x="892" y="668" text-anchor="middle" class="lbl">BELAKANG</text>
+    </svg></div>
+    <div class="card-body"><h3>A · “Kumo” Klasik</h3><p>Depan: logo kecil di dada kiri. Belakang: TORAHO melengkung di atas harimau halftone, 虎火 di bawah.</p><p class="tz-note">Sablon 1 warna. Punggung ± 33×38 cm.</p></div>
+  </div>
+
+  <div class="card" data-choice="jaket-b" onclick="toggleSelect(this)">
+    <div class="card-image"><svg viewBox="0 0 1200 680">
+      <g transform="translate(40,30)"><use href="#zjF"/>
+        <g transform="translate(345,178)"><rect x="-20" y="-20" width="40" height="40" rx="5" fill="#efefef"/><text y="13" text-anchor="middle" class="jp" font-size="29" fill="#0f0f0f">火</text></g>
+      </g>
+      <g transform="translate(620,30)"><use href="#zjB"/>
+        <text x="272" y="150" text-anchor="middle" class="jp" font-size="12" letter-spacing="10" fill="#9a9a9a">トラホ</text>
+        <g transform="translate(272,268) scale(.9)"><use href="#kamon"/></g>
+        <rect x="154" y="384" width="236" height="28" fill="#efefef"/>
+        <text x="272" y="404" text-anchor="middle" class="ar" font-size="12" letter-spacing="4" fill="#0f0f0f">TORAHO · KOLEKSI 01</text>
+      </g>
+      <text x="312" y="668" text-anchor="middle" class="lbl">DEPAN</text><text x="892" y="668" text-anchor="middle" class="lbl">BELAKANG</text>
+    </svg></div>
+    <div class="card-body"><h3>B · “Kamon”</h3><p>Depan: stempel hanko 火 di dada. Belakang: kamon api besar dengan pita nama. Simetris, kuat dari jauh.</p><p class="tz-note">Sablon 1 warna. Kamon sama dengan patch &amp; enamel pin → satu set.</p></div>
+  </div>
+
+  <div class="card" data-choice="jaket-c" onclick="toggleSelect(this)">
+    <div class="card-image"><svg viewBox="0 0 1200 680">
+      <path id="arc-zj2" d="M164,150 Q272,82 380,150" fill="none"/>
+      <g transform="translate(40,30)"><use href="#zjF"/>
+        <g transform="translate(345,176) scale(.26)"><use href="#kamon"/></g>
+        <text transform="translate(452,300) rotate(81)" class="ar" font-size="10" letter-spacing="4" fill="#e8e8e8">HONOO 炎</text>
+      </g>
+      <g transform="translate(620,30)"><use href="#zjB"/>
+        <text class="ar" font-size="20" letter-spacing="8" fill="#e8e8e8" text-anchor="middle"><textPath href="#arc-zj2" startOffset="50%">HONOO · 炎</textPath></text>
+        <text x="272" y="338" text-anchor="middle" class="jp" font-size="186" fill="#e8e8e8">火</text>
+        <text x="272" y="388" text-anchor="middle" class="ar" font-size="15" letter-spacing="9" fill="#e8e8e8">TORAHO</text>
+      </g>
+      <text x="312" y="668" text-anchor="middle" class="lbl">DEPAN</text><text x="892" y="668" text-anchor="middle" class="lbl">BELAKANG</text>
+    </svg></div>
+    <div class="card-body"><h3>C · “Honoo” Bordir</h3><p>Depan: kamon kecil di dada kiri + HONOO 炎 di lengan. Belakang: kanji 火 besar bordir dengan tulisan melengkung.</p><p class="tz-note">Bordir benang putih (satin-stitch kanji, chain-stitch teks).</p></div>
+  </div>
+</div>
+
+<!-- =============================== 6. STIKER =============================== -->
+<div class="tz-sec"><h3>6 · Stiker</h3><span class="tz-tag">Vinyl die-cut / kertas</span></div>
+<div class="cards" data-multiselect>
+  <div class="card" data-choice="stiker-a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#dcdcd8;padding:12px"><svg viewBox="0 0 440 330" style="display:block;width:100%">
+      <rect x="8" y="8" width="424" height="314" rx="10" fill="#f4f4f1" filter="url(#shadow)"/>
+      <g transform="translate(96,92)"><rect x="-70" y="-56" width="140" height="112" rx="18" fill="#f9f9f9" stroke="#cfcfcf" stroke-width="1"/><rect x="-64" y="-50" width="128" height="100" rx="14" fill="#0b0b0b"/><image href="/files/tiger-flat.png" x="-52" y="-44" width="104" height="81"/></g>
+      <g transform="translate(300,96) scale(.56)"><circle r="146" fill="#f9f9f9" stroke="#cfcfcf" stroke-width="2"/><circle r="134" fill="#0b0b0b"/><use href="#kamon"/></g>
+      <g transform="translate(80,238) rotate(-8)"><rect x="-40" y="-40" width="80" height="80" rx="8" fill="#f9f9f9" stroke="#cfcfcf"/><rect x="-34" y="-34" width="68" height="68" rx="6" fill="#0b0b0b"/><rect x="-28" y="-28" width="56" height="56" rx="4" fill="#f2f2f2"/><text y="16" text-anchor="middle" class="jp" font-size="42" fill="#0b0b0b">火</text></g>
+      <g transform="translate(232,226)"><rect x="-84" y="-24" width="168" height="48" rx="24" fill="#f9f9f9" stroke="#cfcfcf"/><rect x="-78" y="-18" width="156" height="36" rx="18" fill="#0b0b0b"/><text y="6" text-anchor="middle" class="ar" font-size="15" letter-spacing="3" fill="#f2f2f2">TORAHO 虎火</text></g>
+      <g transform="translate(232,282)"><circle r="30" fill="#f9f9f9" stroke="#cfcfcf"/><circle r="25" fill="#0b0b0b"/><image href="/files/tiger-halftone.svg" x="-22" y="-17" width="44" height="34"/></g>
+      <g transform="translate(386,240)"><rect x="-22" y="-74" width="44" height="148" rx="8" fill="#f9f9f9" stroke="#cfcfcf"/><rect x="-17" y="-69" width="34" height="138" rx="5" fill="#0b0b0b"/><text x="0" y="-58" class="jp" font-size="24" fill="#f2f2f2" style="writing-mode:vertical-rl" text-anchor="start">虎火商店</text></g>
+    </svg></div>
+    <div class="card-body"><h3>A · Set Die-cut Hitam</h3><p class="tz-note">6 stiker vinyl hitam tahan air dengan potongan mengikuti bentuk (tepi putih). Cocok jadi bonus tiap pembelian.</p></div>
+  </div>
+  <div class="card" data-choice="stiker-b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#dcdcd8;padding:12px"><svg viewBox="0 0 440 330" style="display:block;width:100%">
+      <rect x="8" y="8" width="424" height="314" rx="10" fill="#e9e6dc" filter="url(#shadow)"/>
+      <g transform="translate(118,88)">
+        <path d="M-96,-46 H96 V-12 A12,12 0 0 0 96,12 V46 H-96 V12 A12,12 0 0 0 -96,-12 Z" fill="#f3f0e6" stroke="#1a1a1a" stroke-width="2"/>
+        <line x1="44" y1="-40" x2="44" y2="40" stroke="#1a1a1a" stroke-dasharray="3 3"/>
+        <text x="-80" y="-16" class="ar" font-size="15" letter-spacing="2" fill="#1a1a1a">TORAHO 虎火</text>
+        <text x="-80" y="4" class="ar" font-size="9" letter-spacing="2" fill="#1a1a1a">ADMIT ONE TIGER</text>
+        <text x="-80" y="30" font-size="8" letter-spacing="1" fill="#555">KOLEKSI 01 · 2026</text>
+        <text x="66" y="3" text-anchor="middle" class="ar" font-size="8" fill="#1a1a1a" transform="rotate(90 66 0)">No.0001</text>
+      </g>
+      <g transform="translate(328,96)">
+        <circle r="64" fill="#f3f0e6" stroke="#1a1a1a" stroke-width="2"/><circle r="48" fill="none" stroke="#1a1a1a" stroke-width="1.2"/>
+        <path id="seal-ring" d="M0,0 m-56,0 a56,56 0 1,1 112,0 a56,56 0 1,1 -112,0" fill="none"/>
+        <text class="ar" font-size="8" letter-spacing="1.2" fill="#1a1a1a"><textPath href="#seal-ring" textLength="340" lengthAdjust="spacing">KUALITAS TERJAMIN · 虎火 · TORAHO ·</textPath></text>
+        <text y="14" text-anchor="middle" class="jp" font-size="38" fill="#1a1a1a">虎</text>
+      </g>
+      <g transform="translate(96,236)">
+        <path d="M-58,-58 H40 L66,-32 V58 H-58 Z" fill="#f3f0e6" stroke="#1a1a1a" stroke-width="2"/>
+        <circle cx="44" cy="-30" r="6" fill="#e9e6dc" stroke="#1a1a1a"/>
+        <text x="-46" y="-30" class="ar" font-size="10" letter-spacing="1.5" fill="#1a1a1a">HANDLE</text>
+        <text x="-46" y="-16" class="ar" font-size="10" letter-spacing="1.5" fill="#1a1a1a">WITH FIRE</text>
+        <g fill="#1a1a1a"><rect x="-46" y="4" width="2" height="30"/><rect x="-41" y="4" width="4" height="30"/><rect x="-34" y="4" width="1" height="30"/><rect x="-30" y="4" width="3" height="30"/><rect x="-24" y="4" width="2" height="30"/><rect x="-19" y="4" width="5" height="30"/><rect x="-11" y="4" width="1" height="30"/><rect x="-7" y="4" width="3" height="30"/><rect x="-1" y="4" width="2" height="30"/><rect x="4" y="4" width="4" height="30"/><rect x="11" y="4" width="1" height="30"/><rect x="15" y="4" width="3" height="30"/></g>
+        <text x="-46" y="48" font-size="7" fill="#1a1a1a">インドネシア製</text>
+      </g>
+      <g transform="translate(298,250)">
+        <rect x="-118" y="-30" width="236" height="60" fill="#1a1a1a"/>
+        <text x="-104" y="-4" class="ar" font-size="22" letter-spacing="3" fill="#f3f0e6">TORAHO</text>
+        <text x="-104" y="16" font-size="8" letter-spacing="3" fill="#c9c4b8">TIGER OF FIRE · EST 2026</text>
+        <text x="80" y="10" text-anchor="middle" class="jp" font-size="24" fill="#f3f0e6">虎火</text>
+      </g>
+    </svg></div>
+    <div class="card-body"><h3>B · Set Label Vintage</h3><p class="tz-note">Stiker kertas kraft/krem bergaya label lama: tiket “ADMIT ONE TIGER”, segel “KUALITAS TERJAMIN”, label kirim dengan barcode & インドネシア製 (buatan Indonesia). Cocok untuk segel kemasan.</p></div>
+  </div>
+</div>
+
+<!-- =============================== 7. GANTUNGAN KUNCI =============================== -->
+<div class="tz-sec"><h3>7 · Gantungan Kunci</h3><span class="tz-tag">Akrilik · karet PVC · omamori</span></div>
+<div class="cards" data-multiselect>
+  <div class="card" data-choice="kunci-a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#cfcfcb;padding:12px"><svg viewBox="0 0 300 330" style="display:block;width:100%">
+      <g transform="translate(150,52)"><use href="#ring-key"/></g>
+      <path d="M150,72 L150,96" stroke="url(#metal)" stroke-width="4"/>
+      <g filter="url(#shadow)"><rect x="62" y="96" width="176" height="206" rx="26" fill="url(#acrylic)" stroke="#f7f7f7" stroke-width="2"/></g>
+      <circle cx="150" cy="112" r="7" fill="none" stroke="#9a9a9a" stroke-width="2"/>
+      <rect x="78" y="128" width="144" height="160" rx="16" fill="#0b0b0b"/>
+      <image href="/files/tiger-flat.png" x="88" y="150" width="124" height="97"/>
+      <text x="150" y="272" text-anchor="middle" class="ar" font-size="13" letter-spacing="4" fill="#f2f2f2">TORAHO</text>
+    </svg></div>
+    <div class="card-body"><h3>A · Akrilik Bening</h3><p class="tz-note">Akrilik 5 mm, cetak UV putih + hitam di dalam bingkai bening. Ring besi black-nickel.</p></div>
+  </div>
+  <div class="card" data-choice="kunci-b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#cfcfcb;padding:12px"><svg viewBox="0 0 300 330" style="display:block;width:100%">
+      <g transform="translate(150,48)"><use href="#ring-key"/></g>
+      <path d="M150,68 L150,92" stroke="url(#metal)" stroke-width="4"/>
+      <g transform="translate(150,196)" filter="url(#shadow)"><circle r="96" fill="#161616"/><circle r="90" fill="#0b0b0b"/><g transform="scale(.62)"><use href="#kamon"/></g></g>
+      <circle cx="150" cy="104" r="7" fill="#cfcfcb" stroke="#333" stroke-width="2"/>
+    </svg></div>
+    <div class="card-body"><h3>B · Karet PVC Kamon</h3><p class="tz-note">PVC 2D lunak, motif kamon timbul putih di atas hitam. Awet, murah per unit untuk MOQ 100+.</p></div>
+  </div>
+  <div class="card" data-choice="kunci-c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#cfcfcb;padding:12px"><svg viewBox="0 0 300 330" style="display:block;width:100%">
+      <path d="M150,26 C120,26 118,62 140,70 M150,26 C180,26 182,62 160,70" fill="none" stroke="#efefef" stroke-width="5" stroke-linecap="round"/>
+      <path d="M140,70 C130,84 132,96 150,92 C168,96 170,84 160,70" fill="none" stroke="#efefef" stroke-width="5"/>
+      <g transform="translate(150,200)" filter="url(#shadow)">
+        <path d="M-56,-102 L-38,-118 L38,-118 L56,-102 L56,104 L-56,104 Z" fill="#111"/>
+        <path d="M-48,-96 L-34,-108 L34,-108 L48,-96 L48,96 L-48,96 Z" fill="none" stroke="#bdbdbd" stroke-width="1.5" stroke-dasharray="3 2"/>
+        <text x="0" y="-74" text-anchor="middle" class="jp" font-size="16" fill="#e8e8e8">御守</text>
+        <line x1="-30" y1="-62" x2="30" y2="-62" stroke="#bdbdbd"/>
+        <text x="0" y="-44" class="jp" font-size="54" fill="#f2f2f2" text-anchor="middle" style="writing-mode:vertical-rl">虎火</text>
+        <image href="/files/mark-white.png" x="-20" y="64" width="40" height="40" opacity=".9"/>
+      </g>
+    </svg></div>
+    <div class="card-body"><h3>C · Omamori Toraho</h3><p class="tz-note">Kantong jimat kain khas kuil Jepang: 御守 + 虎火 bordir benang putih, tali simpul putih. Unik, cerita “pelindung pemberani”.</p></div>
+  </div>
+</div>
+
+<!-- =============================== 8. ENAMEL PIN =============================== -->
+<div class="tz-sec"><h3>8 · Enamel Pin</h3><span class="tz-tag">Hard enamel · black nickel · ± 3 cm</span></div>
+<div class="cards" data-multiselect>
+  <div class="card" data-choice="pin-a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#dcdcd8;padding:12px"><svg viewBox="0 0 300 300" style="display:block;width:100%">
+      <g transform="translate(150,150)" filter="url(#shadow)">
+        <circle r="104" fill="url(#metal)"/><circle r="94" fill="#0b0b0b"/>
+        <clipPath id="pinA"><circle r="94"/></clipPath>
+        <image href="/files/tiger-flat.png" x="-80" y="-66" width="160" height="125" clip-path="url(#pinA)"/>
+        <circle r="94" fill="none" stroke="#5a5a5a" stroke-width="2"/>
+        <ellipse cx="-38" cy="-58" rx="40" ry="14" fill="#fff" opacity=".08" transform="rotate(-30 -38 -58)"/>
+      </g>
+    </svg></div>
+    <div class="card-body"><h3>A · Kepala Harimau</h3><p class="tz-note">Garis logam black-nickel, isi enamel putih & hitam. Pin bulat 30 mm, 2 jarum + karet kupu-kupu.</p></div>
+  </div>
+  <div class="card" data-choice="pin-b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#dcdcd8;padding:12px"><svg viewBox="0 0 300 300" style="display:block;width:100%">
+      <g transform="translate(150,150)" filter="url(#shadow)">
+        <circle r="112" fill="url(#metal)"/><circle r="104" fill="#0b0b0b"/>
+        <g transform="scale(.78)"><use href="#kamon"/></g>
+        <circle r="104" fill="none" stroke="#6a6a6a" stroke-width="2"/>
+        <ellipse cx="-40" cy="-62" rx="44" ry="14" fill="#fff" opacity=".08" transform="rotate(-30 -40 -62)"/>
+      </g>
+    </svg></div>
+    <div class="card-body"><h3>B · Kamon Api</h3><p class="tz-note">Desain geometris → garis logam tajam, paling “rapi” sebagai pin. Satu set dengan patch & coach jacket.</p></div>
+  </div>
+  <div class="card" data-choice="pin-c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#dcdcd8;padding:12px"><svg viewBox="0 0 300 300" style="display:block;width:100%">
+      <g filter="url(#shadow)"><rect x="60" y="22" width="180" height="258" rx="6" fill="#0b0b0b"/></g>
+      <circle cx="150" cy="38" r="6" fill="#dcdcd8"/>
+      <text x="150" y="70" text-anchor="middle" class="ar" font-size="16" letter-spacing="4" fill="#f2f2f2">TORAHO</text>
+      <text x="150" y="86" text-anchor="middle" class="jp" font-size="10" letter-spacing="6" fill="#9a9a9a">虎火</text>
+      <g transform="translate(150,160)">
+        <rect x="-46" y="-46" width="92" height="92" rx="12" fill="url(#metal)"/>
+        <rect x="-40" y="-40" width="80" height="80" rx="8" fill="#f2f2f2"/>
+        <text y="22" text-anchor="middle" class="jp" font-size="60" fill="#0b0b0b">火</text>
+        <rect x="-40" y="-40" width="80" height="80" rx="8" fill="none" stroke="#7a7a7a" stroke-width="1.5"/>
+      </g>
+      <text x="150" y="240" text-anchor="middle" class="ar" font-size="8" letter-spacing="1" fill="#9a9a9a">HARD ENAMEL · NO.01</text>
+      <text x="150" y="258" text-anchor="middle" class="ar" font-size="7" letter-spacing="2" fill="#6a6a6a">KOLEKSI 01 · 2026</text>
+    </svg></div>
+    <div class="card-body"><h3>C · Hanko 火 + Kartu</h3><p class="tz-note">Pin stempel kotak 25 mm (putih + hitam) dipasang di kartu kemasan hitam: siap dijual/digantung di etalase.</p></div>
+  </div>
+</div>
+
+<!-- =============================== 5. PATCH =============================== -->
+<div class="tz-sec"><h3>9 · Patch Kamon</h3><span class="tz-tag">Bordir · ± 8 cm</span></div>
+<div class="cards" data-multiselect>
+  <div class="card" data-choice="patch-a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#dcdcd8;padding:14px"><svg viewBox="0 0 300 300" style="display:block;width:100%">
+      <circle cx="150" cy="150" r="128" fill="#0b0b0b" stroke="#f2f2f2" stroke-width="10" filter="url(#shadow)"/>
+      <circle cx="150" cy="150" r="112" fill="none" stroke="#f2f2f2" stroke-width="2" stroke-dasharray="3 5"/>
+      <image href="/files/tiger-flat.png" x="72" y="72" width="156" height="122"/>
+      <text x="150" y="226" text-anchor="middle" class="ar" font-size="14" letter-spacing="5" fill="#f2f2f2">TORAHO</text>
+    </svg></div>
+    <div class="card-body"><h3>A · Cincin Harimau</h3><p class="tz-note">Bordir 1 warna di kain hitam, tepi merrow.</p></div>
+  </div>
+  <div class="card" data-choice="patch-b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#dcdcd8;padding:14px"><svg viewBox="0 0 300 300" style="display:block;width:100%"><g transform="translate(150,150)">
+      <circle r="130" fill="#0b0b0b" filter="url(#shadow)"/>
+      <g fill="#f2f2f2"><use href="#flame"/><use href="#flame" transform="rotate(45)"/><use href="#flame" transform="rotate(90)"/><use href="#flame" transform="rotate(135)"/><use href="#flame" transform="rotate(180)"/><use href="#flame" transform="rotate(225)"/><use href="#flame" transform="rotate(270)"/><use href="#flame" transform="rotate(315)"/></g>
+      <circle r="54" fill="#0b0b0b" stroke="#f2f2f2" stroke-width="7"/>
+      <text y="21" text-anchor="middle" class="jp" font-size="60" fill="#f2f2f2">虎</text>
+      <circle r="124" fill="none" stroke="#f2f2f2" stroke-width="3"/>
+    </g></svg></div>
+    <div class="card-body"><h3>B · Kamon Api</h3><p class="tz-note">Lidah api melengkung mengelilingi 虎. Geometris, ideal untuk bordir, pin, dan stiker.</p></div>
+  </div>
+  <div class="card" data-choice="patch-c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#dcdcd8;padding:14px"><svg viewBox="0 0 300 300" style="display:block;width:100%">
+      <path d="M150,18 L262,58 L262,160 Q262,238 150,284 Q38,238 38,160 L38,58 Z" fill="#0b0b0b" stroke="#f2f2f2" stroke-width="8" filter="url(#shadow)"/>
+      <image href="/files/tiger-flat.png" x="78" y="74" width="144" height="113"/>
+      <rect x="58" y="200" width="184" height="28" fill="#f2f2f2"/>
+      <text x="150" y="220" text-anchor="middle" class="ar" font-size="15" letter-spacing="4" fill="#0b0b0b">TORAHO 虎火</text>
+    </svg></div>
+    <div class="card-body"><h3>C · Perisai</h3><p class="tz-note">Gaya varsity / klub motor, bordir 2 warna.</p></div>
+  </div>
+</div>
+
+<!-- =============================== 6. TOTE =============================== -->
+<div class="tz-sec"><h3>10 · Tote Ukiyo</h3><span class="tz-tag">Sablon 1 warna · kanvas</span></div>
+<div class="cards" data-multiselect>
+  <div class="card" data-choice="tote-a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#dcdcd8;padding:14px"><svg viewBox="0 0 320 400" style="display:block;width:100%">
+      <path d="M110,92 Q110,22 160,22 Q210,22 210,92" fill="none" stroke="#111" stroke-width="12"/>
+      <rect x="40" y="90" width="240" height="290" fill="#111" filter="url(#shadow)"/>
+      <clipPath id="clip-tote"><rect x="70" y="250" width="180" height="90"/></clipPath>
+      <rect x="70" y="250" width="180" height="90" fill="url(#seigaiha-ink)" clip-path="url(#clip-tote)"/>
+      <image href="/files/tiger-halftone.svg" x="70" y="128" width="180" height="141"/>
+      <text x="160" y="362" text-anchor="middle" class="ar" font-size="11" letter-spacing="6" fill="#f2f2f2">UKIYO · TORAHO</text>
+    </svg></div>
+    <div class="card-body"><h3>A · Harimau di Atas Ombak</h3><p class="tz-note">1 warna putih di tote hitam.</p></div>
+  </div>
+  <div class="card" data-choice="tote-b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#dcdcd8;padding:14px"><svg viewBox="0 0 320 400" style="display:block;width:100%">
+      <path d="M110,92 Q110,22 160,22 Q210,22 210,92" fill="none" stroke="#c9c4b8" stroke-width="12"/>
+      <rect x="40" y="90" width="240" height="290" fill="#e7e2d6" filter="url(#shadow)"/>
+      <text x="122" y="130" class="jp" font-size="92" fill="#111" style="writing-mode:vertical-rl">虎火</text>
+      <image href="/files/tiger-flat.png" x="168" y="300" width="88" height="69" style="filter:invert(1)"/>
+      <text x="226" y="112" class="ar" font-size="9" letter-spacing="2.5" fill="#111" style="writing-mode:vertical-rl">TORAHO / TIGER × FIRE</text>
+    </svg></div>
+    <div class="card-body"><h3>B · Kanji Raksasa</h3><p class="tz-note">1 warna hitam di kanvas natural.</p></div>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top:28px">Catatan: ini konsep. Desain terpilih akan dirapikan jadi file vektor untuk sablon dan di-<i>digitize</i> oleh vendor bordir.</p>
