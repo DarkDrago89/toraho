@@ -1,6 +1,7 @@
 "use server";
 
 import { getVariantsForCart, type CartVariant } from "@/features/catalog/service";
+import { expireStaleOrders } from "@/features/orders/service";
 import type { CartLine } from "./cart-store";
 
 export type CartViewItem = CartVariant & { qty: number };
@@ -9,6 +10,7 @@ export type CartViewItem = CartVariant & { qty: number };
 export async function getCartView(lines: CartLine[]): Promise<{ items: CartViewItem[]; missing: string[] }> {
   const safe = lines.filter((l) => typeof l.variantId === "string").slice(0, 50);
   if (safe.length === 0) return { items: [], missing: [] };
+  await expireStaleOrders(); // stok terkini, termasuk unit dari pesanan yang baru kedaluwarsa
   const { available, missing } = await getVariantsForCart(safe.map((l) => l.variantId));
   const byId = new Map(available.map((v) => [v.variantId, v]));
   const items = safe.flatMap((l) => {

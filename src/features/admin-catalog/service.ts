@@ -77,6 +77,8 @@ const productSchema = z
           label: z.string().trim().min(1, "Label ukuran wajib diisi").max(30),
           sku: z.string().trim().min(1, "SKU wajib diisi").max(60),
           stock: int("Stok harus angka bulat").min(0, "Stok tidak boleh negatif"),
+          /** Stok saat form dibuka. Wajib untuk varian lama agar stok yang berubah karena pesanan tidak tertimpa. */
+          baseStock: z.coerce.number().int().optional(),
         }),
       )
       .min(1, "Minimal satu varian/ukuran"),
@@ -92,7 +94,18 @@ const productSchema = z
 export type ProductInput = z.input<typeof productSchema>;
 export type SaveProductResult = { ok: true; id: string } | { ok: false; errors: string[] };
 
+class StaleStockError extends Error {}
+
 export async function saveProduct(raw: ProductInput): Promise<SaveProductResult> {
+  try {
+    return await saveProductInner(raw);
+  } catch (e) {
+    if (e instanceof StaleStockError) return { ok: false, errors: [e.message] };
+    throw e;
+  }
+}
+
+async function saveProductInner(raw: ProductInput): Promise<SaveProductResult> {
   const parsed = productSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, errors: [...new Set(parsed.error.issues.map((i) => i.message))] };
   const p = parsed.data;
@@ -133,23 +146,41 @@ export async function saveProduct(raw: ProductInput): Promise<SaveProductResult>
       else await tx.variant.delete({ where: { id: old.id } });
     }
     for (const [i, v] of p.variants.entries()) {
-      const fields = { label: v.label, sku: v.sku, stock: v.stock, sortOrder: i, isArchived: false };
-      if (v.id && existing.some((e) => e.id === v.id)) await tx.variant.update({ where: { id: v.id }, data: fields });
-      else await tx.variant.create({ data: { ...fields, productId: product.id } });
+      const fields = { label: v.label, sku: v.sku, sortOrder: i, isArchived: false };
+      if (v.id && existing.some((e) => e.id === v.id)) {
+        // Stok = stok yang bisa dijual (unit yang ditahan pesanan sudah dikurangi). Hanya ditulis jika
+        // nilainya masih sama seperti saat form dibuka; kalau pesanan masuk/kedaluwarsa di antaranya → tolak.
+        if (v.baseStock === undefined) {
+          await tx.variant.update({ where: { id: v.id }, data: fields });
+        } else {
+          const r = await tx.variant.updateMany({ where: { id: v.id, stock: v.baseStock }, data: { ...fields, stock: v.stock } });
+          if (r.count === 0)
+            throw new StaleStockError(`Stok ${v.label} berubah sejak halaman dibuka (ada pesanan masuk/batal). Muat ulang halaman lalu simpan lagi.`);
+        }
+      } else await tx.variant.create({ data: { ...fields, stock: v.stock, productId: product.id } });
     }
     return product.id;
   });
   return { ok: true, id };
 }
 
+/** Produk untuk form edit, dengan `held` = unit yang sedang ditahan pesanan belum lunas/bermasalah per varian. */
 export async function getAdminProduct(id: string) {
-  return prisma.product.findUnique({
+  const p = await prisma.product.findUnique({
     where: { id },
     include: {
       images: { orderBy: { sortOrder: "asc" } },
       variants: { where: { isArchived: false }, orderBy: { sortOrder: "asc" } },
     },
   });
+  if (!p) return null;
+  const held = await prisma.orderItem.groupBy({
+    by: ["variantId"],
+    where: { variantId: { in: p.variants.map((v) => v.id) }, order: { stockHeld: true, status: { in: ["MENUNGGU_BAYAR", "MENUNGGU_VERIFIKASI", "PERLU_TINDAKAN"] } } },
+    _sum: { qty: true },
+  });
+  const heldBy = new Map(held.map((h) => [h.variantId, h._sum.qty ?? 0]));
+  return { ...p, variants: p.variants.map((v) => ({ ...v, held: heldBy.get(v.id) ?? 0 })) };
 }
 
 export type AdminProductRow = {

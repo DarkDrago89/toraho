@@ -4,10 +4,11 @@
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
 import { btnGhost, btnPrimary, ErrorList, fieldCls, inputCls, Label } from "@/components/ui/admin";
-import { IMAGE_ACCEPT } from "@/lib/storage/constants";
+import { IMAGE_ACCEPT, validateImageUpload } from "@/lib/storage/constants";
 import { saveProductAction, uploadProductImageAction } from "./actions";
 
-type VariantRow = { id?: string; label: string; sku: string; stock: number };
+/** baseStock = stok saat form dibuka (cek bentrok saat simpan); held = unit yang sedang ditahan pesanan (info saja). */
+type VariantRow = { id?: string; label: string; sku: string; stock: number; baseStock?: number; held?: number };
 export type ProductFormValue = {
   id?: string;
   categoryId: string;
@@ -66,6 +67,11 @@ export function ProductForm({ categories, initial }: { categories: { id: string;
     const urls: string[] = [];
     const errs: string[] = [];
     for (const f of Array.from(files)) {
+      const invalid = validateImageUpload(f);
+      if (invalid) {
+        errs.push(`${f.name}: ${invalid.replace("Bukti", "Foto")}`);
+        continue;
+      }
       const fd = new FormData();
       fd.append("file", f);
       const r = await uploadProductImageAction(fd);
@@ -169,11 +175,11 @@ export function ProductForm({ categories, initial }: { categories: { id: string;
               <div className="grid grid-cols-[1fr_1.4fr_90px_32px] gap-2 text-[0.65rem] tracking-[0.2em] text-muted uppercase">
                 <span>Ukuran</span>
                 <span>SKU</span>
-                <span>Stok</span>
+                <span title="Stok yang masih bisa dijual (unit yang ditahan pesanan belum lunas sudah dikurangi)">Stok jual</span>
                 <span />
               </div>
               {v.variants.map((row, i) => (
-                <div key={row.id ?? `new-${i}`} className="grid grid-cols-[1fr_1.4fr_90px_32px] items-center gap-2">
+                <div key={row.id ?? `new-${i}`} className="grid grid-cols-[1fr_1.4fr_90px_32px] items-center gap-2 [&>p]:col-span-4">
                   <input aria-label="Ukuran" value={row.label} onChange={(e) => setVariant(i, { label: e.target.value })} className={`${fieldCls} w-full min-w-0`} />
                   <input aria-label="SKU" value={row.sku} onChange={(e) => setVariant(i, { sku: e.target.value.toUpperCase() })} className={`${fieldCls} w-full min-w-0 font-mono text-xs`} />
                   <input
@@ -187,9 +193,16 @@ export function ProductForm({ categories, initial }: { categories: { id: string;
                   <button type="button" aria-label="Hapus varian" onClick={() => set("variants", v.variants.filter((_, j) => j !== i))} className="text-muted hover:text-paper">
                     ✕
                   </button>
+                  {!!row.held && (
+                    <p className="-mt-1 text-[0.7rem] text-amber-300">
+                      + {row.held} ditahan pesanan belum lunas (stok fisik = {row.stock + row.held})
+                    </p>
+                  )}
                 </div>
               ))}
-              <p className="pt-1 text-xs text-muted">Total stok: {v.variants.reduce((n, r) => n + (r.stock || 0), 0)}</p>
+              <p className="pt-1 text-xs text-muted">
+                Total stok jual: {v.variants.reduce((n, r) => n + (r.stock || 0), 0)}. Isi dengan stok yang masih bisa dijual, bukan jumlah di rak.
+              </p>
             </div>
           )}
         </section>
@@ -215,7 +228,7 @@ export function ProductForm({ categories, initial }: { categories: { id: string;
               <input ref={fileRef} type="file" accept={IMAGE_ACCEPT} multiple className="sr-only" disabled={uploading} onChange={(e) => onFiles(e.target.files)} />
             </label>
           </div>
-          <p className="mt-3 text-xs text-muted">JPG/PNG/WEBP maks 5 MB. Foto pertama jadi foto utama.</p>
+          <p className="mt-3 text-xs text-muted">JPG/PNG/WEBP maks 4 MB. Foto pertama jadi foto utama.</p>
         </section>
 
         <section className="space-y-3 border border-line p-5 text-sm">

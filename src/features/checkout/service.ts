@@ -7,7 +7,8 @@ import { computeTotals } from "@/lib/domain/totals";
 import { getShippingProvider } from "@/lib/shipping";
 import { isProvinceCode } from "@/lib/shipping/provinces";
 import { getSettings } from "@/features/settings/service";
-import { holdStock, StockError } from "@/features/orders/stock";
+import { holdStock, isRetryableTxError, StockError } from "@/features/orders/stock";
+import { expireStaleOrders } from "@/features/orders/service";
 import type { CartLine } from "@/features/cart/cart-store";
 
 export type PaymentMethod = "MIDTRANS" | "MANUAL";
@@ -70,6 +71,10 @@ export async function createOrder(raw: CheckoutInput, now = new Date()): Promise
   if (!parsed.success) return { ok: false, errors: [...new Set(parsed.error.issues.map((i) => i.message))] };
   const data = parsed.data;
   const lines = mergeLines(data.lines);
+
+  // Lepas dulu stok yang ditahan pesanan kedaluwarsa: cron hanya berjalan harian, jadi tanpa ini
+  // ukuran terakhir bisa tampak "habis" seharian karena pesanan yang ditinggal pembeli lain.
+  await expireStaleOrders(now);
 
   // 1. Validasi barang terhadap data server.
   const variants = await prisma.variant.findMany({
@@ -143,6 +148,7 @@ export async function createOrder(raw: CheckoutInput, now = new Date()): Promise
       };
     } catch (e) {
       if (e instanceof StockError) return { ok: false, errors: [e.message] };
+      if (isRetryableTxError(e)) return { ok: false, errors: ["Toko sedang ramai, silakan coba lagi sebentar"] };
       if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") continue;
       throw e;
     }

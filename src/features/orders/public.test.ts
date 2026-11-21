@@ -15,9 +15,10 @@ function fakeStorage(): FileStorage & { put: ReturnType<typeof vi.fn> } {
 describe("validateImageUpload", () => {
   it("Review Focus 4: menolak bukan gambar dan file > 5 MB", () => {
     expect(validateImageUpload({ type: "application/pdf", size: 1000 })).toBe("Bukti harus berupa gambar JPG, PNG, atau WEBP");
-    expect(validateImageUpload({ type: "image/png", size: 6 * MB })).toBe("Ukuran maksimal 5 MB");
+    // Batas 4 MB: Vercel menolak body request > 4,5 MB, jadi 5 MB tidak pernah bisa sampai di produksi.
+    expect(validateImageUpload({ type: "image/png", size: 4 * MB + 1 })).toBe("Ukuran maksimal 4 MB");
     expect(validateImageUpload({ type: "image/png", size: 0 })).toBe("File kosong");
-    expect(validateImageUpload({ type: "image/webp", size: 5 * MB })).toBeNull();
+    expect(validateImageUpload({ type: "image/webp", size: 4 * MB })).toBeNull();
   });
 });
 

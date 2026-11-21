@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/ui/admin";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { getAdminOrder } from "@/features/orders/admin";
+import { getAdminOrder, needsRefund } from "@/features/orders/admin";
 import { OrderActions } from "@/features/orders/OrderActions";
 import { toWaNumber } from "@/lib/domain/phone";
 import { formatDateTime, formatRupiah } from "@/lib/format";
@@ -14,7 +14,7 @@ export const metadata = { title: "Detail Pesanan" };
 
 export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const o = await getAdminOrder(id);
+  const [o, canRefund] = await Promise.all([getAdminOrder(id), needsRefund(id)]);
   if (!o) notFound();
 
   const wa = `https://wa.me/${toWaNumber(o.phone)}?text=${encodeURIComponent(`Halo ${o.customerName}, ini Toraho mengenai pesanan ${o.code}.`)}`;
@@ -102,6 +102,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
               status: o.status,
               paymentMethod: o.paymentMethod,
               paidAt: o.paidAt?.toISOString() ?? null,
+              canRefund,
               refunded: o.refunded,
               trackingNumber: o.trackingNumber,
             }}

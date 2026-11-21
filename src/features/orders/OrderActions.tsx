@@ -7,7 +7,7 @@ import type { OrderStatus } from "@/lib/domain/order-status";
 import { orderAction } from "./admin-actions";
 
 type Props = {
-  order: { id: string; status: OrderStatus; paymentMethod: "MIDTRANS" | "MANUAL"; paidAt: string | null; refunded: boolean; trackingNumber: string | null };
+  order: { id: string; status: OrderStatus; paymentMethod: "MIDTRANS" | "MANUAL"; paidAt: string | null; canRefund: boolean; refunded: boolean; trackingNumber: string | null };
 };
 
 const CANCELLABLE: OrderStatus[] = ["MENUNGGU_BAYAR", "MENUNGGU_VERIFIKASI", "DIBAYAR", "DIKEMAS", "PERLU_TINDAKAN"];
@@ -68,7 +68,7 @@ export function OrderActions({ order }: Props) {
         Tandai Selesai
       </button>,
     );
-  if (s === "BATAL" && order.paidAt && !order.refunded)
+  if (s === "BATAL" && order.canRefund)
     buttons.push(
       <button key="ref" disabled={pending} onClick={() => run({ op: "refund" })} className={`${btnGhost} w-full`}>
         Tandai Sudah Refund

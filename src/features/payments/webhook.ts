@@ -78,6 +78,18 @@ export async function handleMidtransNotification(n: MidtransNotification, now = 
           });
           return "needs_action";
         }
+        if (status === "BATAL") {
+          // Pesanan sudah dibatalkan admin tapi pembeli tetap membayar (VA/QRIS masih aktif di Midtrans).
+          // Status tetap BATAL; uang dicatat agar muncul sebagai kewajiban refund, bukan hilang tanpa jejak.
+          await tx.order.update({
+            where: { id: cur.id },
+            data: {
+              paidAt: cur.paidAt ?? now,
+              adminNote: `${cur.adminNote ? cur.adminNote + " · " : ""}Pembayaran Midtrans masuk Rp${cur.total} untuk pesanan yang sudah batal: refund manual ke pembeli.`,
+            },
+          });
+          return "needs_action";
+        }
         return "ignored";
       }
 

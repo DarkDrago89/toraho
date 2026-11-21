@@ -35,7 +35,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
           weightGrams: p.weightGrams,
           isVisible: p.isVisible,
           isFeatured: p.isFeatured,
-          variants: p.variants.map((v) => ({ id: v.id, label: v.label, sku: v.sku, stock: v.stock })),
+          variants: p.variants.map((v) => ({ id: v.id, label: v.label, sku: v.sku, stock: v.stock, baseStock: v.stock, held: v.held })),
           imageUrls: p.images.map((i) => i.url),
         }}
       />

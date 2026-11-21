@@ -5,6 +5,7 @@ import { ProductImage } from "@/components/ui/ProductImage";
 import { KanjiAccent } from "@/components/brand/KanjiAccent";
 import { AddToCart } from "@/features/cart/AddToCart";
 import { getProductBySlug } from "@/features/catalog/service";
+import { expireStaleOrders } from "@/features/orders/service";
 import { formatRupiah } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -22,6 +23,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 }
 
 export default async function ProductPage({ params }: Params) {
+  await expireStaleOrders(); // stok dari pesanan kedaluwarsa dilepas dulu agar ukuran tidak tampak "habis"
   const p = await getProductBySlug((await params).slug);
   if (!p) notFound();
 

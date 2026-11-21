@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
-import { makeCategory, makeOrder, uid } from "@/test/factory";
-import { deleteCategory, listAdminProducts, saveCategory, saveProduct, type ProductInput } from "./service";
+import { makeCategory, makeOrder, makeProduct, stockOf, uid } from "@/test/factory";
+import { deleteCategory, getAdminProduct, listAdminProducts, saveCategory, saveProduct, type ProductInput } from "./service";
 
 async function base(over: Partial<ProductInput> = {}): Promise<ProductInput> {
   const cat = await makeCategory();
@@ -111,11 +111,58 @@ describe("saveProduct", () => {
     const r = await saveProduct({
       ...input,
       id: created.id,
-      variants: v.map((x) => ({ id: x.id, label: x.label, sku: x.sku, stock: 10 })),
+      variants: v.map((x) => ({ id: x.id, label: x.label, sku: x.sku, stock: 10, baseStock: x.stock })),
     });
     expect(r.ok).toBe(true);
     const after = await prisma.variant.findMany({ where: { productId: created.id } });
     expect(after.map((x) => x.stock)).toEqual([10, 10]);
+  });
+});
+
+describe("saveProduct: stok tidak boleh menimpa stok yang sudah ditahan pesanan (review C2)", () => {
+  async function editInput(productId: string, stockOverride: (v: { id: string; label: string; sku: string; stock: number }) => { stock: number; baseStock: number }) {
+    const p = await prisma.product.findUniqueOrThrow({ where: { id: productId }, include: { variants: true } });
+    return {
+      id: p.id,
+      categoryId: p.categoryId,
+      name: p.name,
+      description: "deskripsi baru",
+      price: p.price,
+      compareAtPrice: null,
+      weightGrams: p.weightGrams,
+      isVisible: true,
+      isFeatured: false,
+      variants: p.variants.map((v) => ({ id: v.id, label: v.label, sku: v.sku, ...stockOverride(v) })),
+      imageUrls: [],
+    };
+  }
+
+  it("form basi (dibuka sebelum pesanan masuk) ditolak dan stok tidak berubah", async () => {
+    const { product, variant } = await makeProduct({ stock: 1 });
+    // Admin membuka form saat stok 1…
+    const stale = await editInput(product.id, () => ({ stock: 1, baseStock: 1 }));
+    // …lalu pembeli checkout unit itu (stok jadi 0, ditahan).
+    await prisma.variant.update({ where: { id: variant.id }, data: { stock: 0 } });
+    const r = await saveProduct(stale);
+    expect(r.ok).toBe(false);
+    if (r.ok) return;
+    expect(r.errors[0]).toContain("Stok M berubah sejak halaman dibuka");
+    expect(await stockOf(variant.id)).toBe(0);
+  });
+
+  it("form segar menyimpan stok baru", async () => {
+    const { product, variant } = await makeProduct({ stock: 3 });
+    const r = await saveProduct(await editInput(product.id, () => ({ stock: 8, baseStock: 3 })));
+    expect(r.ok).toBe(true);
+    expect(await stockOf(variant.id)).toBe(8);
+  });
+});
+
+describe("getAdminProduct", () => {
+  it("menampilkan jumlah unit yang sedang ditahan pesanan per varian", async () => {
+    const { product, variant } = await makeOrder({ stock: 5, qty: 2 });
+    const p = await getAdminProduct(product.id);
+    expect(p?.variants.find((v) => v.id === variant.id)).toMatchObject({ stock: 3, held: 2 });
   });
 });
 
