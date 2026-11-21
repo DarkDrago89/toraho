@@ -18,6 +18,8 @@ const eslintConfig = [
       "out/**",
       "build/**",
       "next-env.d.ts",
+      // Skrip alat desain (CommonJS, dijalankan manual), bukan bagian aplikasi.
+      "design/**",
     ],
   },
 ];

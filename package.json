@@ -12,7 +12,9 @@
     "db:seed": "prisma db seed",
     "db:test:prepare": "node scripts/prepare-test-db.mjs",
     "brand": "node scripts/make-brand.mjs",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "db:seed:koleksi01": "tsx prisma/seed-koleksi-01.ts",
+    "render:mockups": "tsx scripts/render-mockups.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

@@ -49,6 +49,12 @@ Dari komputer lokal, arahkan `DATABASE_URL` sementara ke database Neon tujuan:
 $env:DATABASE_URL="<connection string Neon>"; $env:SEED_ADMIN_PASSWORD="<kata sandi>"; $env:SEED_DEMO_PRODUCTS="false"; npm run db:seed
 ```
 
+Untuk **toko asli**, isi juga 27 produk Koleksi 01 (harga & stok awal bisa diubah di admin):
+
+```powershell
+$env:DATABASE_URL="<connection string Neon>"; npm run db:seed:koleksi01
+```
+
 Seed bersifat idempoten: aman dijalankan ulang, dan tidak menimpa produk atau pengaturan yang sudah diubah admin.
 
 ## 5. Midtrans

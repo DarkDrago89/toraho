@@ -14,12 +14,13 @@ const ROOT = process.cwd();
 const DESIGN_DIR = path.join(ROOT, "design", "koleksi-01");
 const OUT_DIR = path.join(ROOT, "public", "products", "koleksi-01");
 const TMP = path.join(os.tmpdir(), "toraho-render");
-const CHROME =
+const CHROME_FOUND =
   process.env.CHROME_PATH ??
   ["C:/Program Files/Google/Chrome/Application/chrome.exe", "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe", "/usr/bin/google-chrome"].find(
     (p) => existsSync(p),
   );
-if (!CHROME) throw new Error("Chrome/Edge tidak ditemukan. Atur CHROME_PATH.");
+if (!CHROME_FOUND) throw new Error("Chrome/Edge tidak ditemukan. Atur CHROME_PATH.");
+const CHROME: string = CHROME_FOUND;
 
 const W = 900, H = 1200; // 3:4
 const BG = "#e4e4e0";
@@ -45,15 +46,12 @@ function cardSvg(concept: string) {
 
 /** viewBox potongan untuk satu sisi, dilebarkan ke 3:4 dengan sedikit ruang. */
 function viewBoxFor(svg: string, view: "depan" | "belakang" | "full") {
-  const vb = svg.match(/viewBox="([^"]+)"/)![1].split(/\s+/).map(Number);
-  let [x, y, w, h] = vb;
-  if (view !== "full") {
-    w = w / 2;
-    if (view === "belakang") x += w;
-    h -= 40; // buang baris label DEPAN/BELAKANG
-  }
+  const [vx, y, vw, vh] = svg.match(/viewBox="([^"]+)"/)![1].split(/\s+/).map(Number);
+  let w = view === "full" ? vw : vw / 2;
+  let h = view === "full" ? vh : vh - 40; // buang baris label DEPAN/BELAKANG
+  const x = view === "belakang" ? vx + w : vx;
   const pad = 0.06;
-  let cx = x + w / 2, cy = y + h / 2;
+  const cx = x + w / 2, cy = y + h / 2;
   w *= 1 + pad * 2; h *= 1 + pad * 2;
   if (w / h > 3 / 4) h = (w * 4) / 3; else w = (h * 3) / 4;
   return `${(cx - w / 2).toFixed(1)} ${(cy - h / 2).toFixed(1)} ${w.toFixed(1)} ${h.toFixed(1)}`;

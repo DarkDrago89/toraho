@@ -117,6 +117,7 @@ npm run dev                   # http://localhost:3000  (admin: /admin)
 - **Midtrans:** isi `MIDTRANS_SERVER_KEY` dengan Server Key **sandbox** dari dashboard Midtrans. Tanpa key ini, opsi QRIS/VA dinonaktifkan dan hanya transfer manual yang bisa dipilih.
 - **Tes:** `npm test`. Ada 129 tes untuk aturan domain, checkout (termasuk balapan stok), webhook, transfer manual, admin, laporan, dan pengaturan.
 - **Aset brand:** `npm run brand -- assets/logo-source.webp` membuat logo putih, mark, dan ikon dari logo sumber.
+- **Koleksi 01:** 27 produk (kaos, hoodie, jaket zip, stiker, gantungan kunci, enamel pin, patch, tote) ada di `src/data/koleksi-01.ts`. `npm run db:seed:koleksi01` memasukkannya ke database (produk yang sudah ada tidak diubah, placeholder lama disembunyikan). Foto produk dibuat dari `design/koleksi-01/koleksi-01.html` dengan `npm run render:mockups` (butuh Chrome).
 
 ## Deploy
 
