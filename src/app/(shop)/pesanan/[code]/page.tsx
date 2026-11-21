@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { auth } from "@/auth";
-import { getOrderForBuyer, getOrderForCustomer, linkGuestOrder } from "@/features/orders/service";
+import { getOrderForBuyer, getOrderForCustomer } from "@/features/orders/service";
 import { payNowAction } from "@/features/orders/actions";
 import { getSettings } from "@/features/settings/service";
 import { StatusStepper } from "@/features/orders/buyer/StatusStepper";
@@ -15,19 +15,19 @@ import { describeShipping, formatAddress } from "@/lib/shipping/describe";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Status Pesanan", robots: { index: false } };
 
-type Props = { params: Promise<{ code: string }>; searchParams: Promise<{ hp?: string; gagal?: string }> };
+type Props = { params: Promise<{ code: string }>; searchParams: Promise<{ hp?: string; gagal?: string; tersimpan?: string }> };
 
 export default async function OrderStatusPage({ params, searchParams }: Props) {
   const { code } = await params;
-  const { hp = "", gagal } = await searchParams;
+  const { hp = "", gagal, tersimpan } = await searchParams;
   const [session, settings] = await Promise.all([auth(), getSettings()]);
   const customerId = session?.user?.role === "customer" ? session.user.id : null;
 
   // Akses: kode + nomor HP (siapa pun), atau sesi pembeli pemilik pesanan.
+  // (Pesanan tamu dihubungkan ke akun di form Lacak — POST — bukan saat halaman ini dibuka.)
   let order = hp ? await getOrderForBuyer(code, hp) : null;
-  // Pesanan tamu dengan email yang sama → dihubungkan ke akun setelah nomor HP terbukti cocok.
-  const justLinked = !!order && !!customerId && (await linkGuestOrder(code, hp, customerId));
   if (!order && customerId) order = await getOrderForCustomer(code, customerId);
+  const justLinked = tersimpan === "1" && !!order;
 
   if (!order) {
     return (

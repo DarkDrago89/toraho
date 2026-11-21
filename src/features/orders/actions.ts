@@ -5,7 +5,8 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { normalizePhone } from "@/lib/domain/phone";
 import { startPayment } from "@/features/payments/start";
-import { getOrderForBuyer, submitPaymentProof, type ActionResult } from "./service";
+import { auth } from "@/auth";
+import { getOrderForBuyer, linkGuestOrder, submitPaymentProof, type ActionResult } from "./service";
 
 export async function uploadProofAction(_prev: ActionResult | null, form: FormData): Promise<ActionResult> {
   const code = String(form.get("code") ?? "");
@@ -39,5 +40,10 @@ export async function trackAction(_prev: { error: string } | null, form: FormDat
   if (!code || !phone) return { error: "Isi kode pesanan dan nomor HP yang dipakai saat checkout" };
   const exists = await prisma.order.findFirst({ where: { code, phone }, select: { code: true } });
   if (!exists) return { error: "Pesanan tidak ditemukan. Periksa kode dan nomor HP." };
-  redirect(`/pesanan/${code}?hp=${encodeURIComponent(phone)}`);
+  // Pembeli yang login membuktikan nomor HP lewat form ini (POST) → pesanan tamu dengan email yang sama
+  // dihubungkan ke akunnya. Sengaja tidak dilakukan saat halaman pesanan dibuka (GET): tautan buatan orang
+  // lain tidak boleh bisa "menanam" pesanan ke akun seseorang.
+  const session = await auth();
+  const linked = session?.user?.role === "customer" && session.user.id ? await linkGuestOrder(code, phone, session.user.id) : false;
+  redirect(`/pesanan/${code}?hp=${encodeURIComponent(phone)}${linked ? "&tersimpan=1" : ""}`);
 }
