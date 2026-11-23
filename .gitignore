@@ -41,5 +41,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# local env files
-**/.*/
+# hidden tool and agent folders
+**/.agents/
+**/.claude/
+**/.agent/
+**/.superpowers/
+**/.github/
+**/.copilot/
