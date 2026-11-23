@@ -41,7 +41,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# hidden tool and agent folders
+# hidden tool folders
 **/.agents/
 **/.claude/
 **/.agent/
